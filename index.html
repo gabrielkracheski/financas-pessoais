@@ -1,14 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Controle Financeiro Pessoal</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Controle Financeiro Pessoal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-  <h1>Controle Financeiro Pessoal</h1>
+    <h1>Controle Financeiro Pessoal</h1>
 
-  <script src="script.js"></script>
+    <form id="form-lancamento">
+        <label for="data">Data</label>
+        <input type="date" id="data" required>
+
+        <label for="descricao">Descrição</label>
+        <input type="text" id="descricao" placeholder="Ex: Almoço" required>
+
+        <label for="categoria">Categoria</label>
+        <select id="categoria" required>
+            <option value="">Selecione</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Compras">Compras</option>
+            <option value="Contas Fixas">Contas Fixas</option>
+            <option value="Educação">Educação</option>
+        </select>
+
+        <label for="tipo">Tipo</label>
+        <select id="tipo" required>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+        </select>
+
+        <label for="valor">Valor (R$)</label>
+        <input type="number" id="valor" step="0.01" required>
+
+        <label for="forma">Forma de Pagamento</label>
+        <select id="forma">
+            <option value="Pix">Pix</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Caju">Caju</option>
+        </select>
+
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <h2>Lançamentos</h2>
+    <ul id="lista-lancamentos"></ul>
+
+    <h2>Resumo Mensal</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mês</th>
+                <th>Entradas</th>
+                <th>Saídas</th>
+                <th>Saldo</th>
+                <th>Situação</th>
+            </tr>
+        </thead>
+        <tbody id="corpo-resumo"></tbody>
+    </table>
+
+    <h2>Dashboard por Categoria</h2>
+    <label for="mes-dashboard">Mês/Ano:</label>
+    <select id="mes-dashboard"></select>
+
+    <canvas id="grafico-categorias" width="400" height="300"></canvas>
+
+    <script src="script.js"></script>
+
 </body>
+
 </html>
