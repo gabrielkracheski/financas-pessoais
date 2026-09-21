@@ -7,15 +7,61 @@ function salvar() {
     localStorage.setItem("lancamentos", JSON.stringify(lancamentos));
 }
 
+function excluirLancamento(indice) {
+    const confirmar = confirm("Tem certeza que deseja excluir este lançamento?");
+    if (!confirmar) return;
+
+    lancamentos.splice(indice, 1);
+    salvar();
+    renderizar();
+    renderizarResumo();
+    preencherSeletorMeses();
+    renderizarDashboard();
+}
+
+let indiceEmEdicao = null;
+
+function editarLancamento(indice) {
+    const item = lancamentos[indice];
+
+    document.getElementById("data").value = item.data;
+    document.getElementById("descricao").value = item.descricao;
+    document.getElementById("categoria").value = item.categoria;
+    document.getElementById("tipo").value = item.tipo;
+    document.getElementById("valor").value = item.valor;
+    document.getElementById("forma").value = item.forma;
+
+    indiceEmEdicao = indice;
+    form.querySelector("button[type=submit]").textContent = "Salvar alteração";
+}
+
 function renderizar() {
     lista.innerHTML = "";
 
-    lancamentos.forEach(function (item) {
+    lancamentos.forEach(function (item, indice) {
         const linha = document.createElement("li");
-        linha.textContent =
+
+        const texto = document.createElement("span");
+        texto.textContent =
             item.data + " | " + item.descricao + " | " + item.categoria +
             " | " + item.tipo + " | R$ " + item.valor.toFixed(2) +
             " | " + item.forma;
+
+        const botaoEditar = document.createElement("button");
+        botaoEditar.textContent = "Editar";
+        botaoEditar.addEventListener("click", function () {
+            editarLancamento(indice);
+        });
+
+        const botaoExcluir = document.createElement("button");
+        botaoExcluir.textContent = "Excluir";
+        botaoExcluir.addEventListener("click", function () {
+            excluirLancamento(indice);
+        });
+
+        linha.appendChild(texto);
+        linha.appendChild(botaoEditar);
+        linha.appendChild(botaoExcluir);
         lista.appendChild(linha);
     });
 }
@@ -151,7 +197,14 @@ form.addEventListener("submit", function (evento) {
         forma: document.getElementById("forma").value
     };
 
-    lancamentos.push(lancamento);
+    if (indiceEmEdicao === null) {
+        lancamentos.push(lancamento);
+    } else {
+        lancamentos[indiceEmEdicao] = lancamento;
+        indiceEmEdicao = null;
+        form.querySelector("button[type=submit]").textContent = "Adicionar";
+    }
+
     salvar();
     renderizar();
     renderizarResumo();
