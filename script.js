@@ -15,6 +15,7 @@ function excluirLancamento(indice) {
     salvar();
     renderizar();
     renderizarResumo();
+    renderizarResumoAnual();
     preencherSeletorMeses();
     renderizarDashboard();
 }
@@ -120,6 +121,49 @@ function renderizarResumo() {
     });
 }
 
+function calcularResumoAnual() {
+    const resumoPorAno = {};
+
+    lancamentos.forEach(function (item) {
+        const ano = item.data.split("-")[0];
+
+        if (!resumoPorAno[ano]) {
+            resumoPorAno[ano] = { entradas: 0, saidas: 0 };
+        }
+
+        if (item.tipo === "Entrada") {
+            resumoPorAno[ano].entradas += item.valor;
+        } else {
+            resumoPorAno[ano].saidas += item.valor;
+        }
+    });
+
+    return resumoPorAno;
+}
+
+function renderizarResumoAnual() {
+    const resumo = calcularResumoAnual();
+    const corpo = document.getElementById("corpo-resumo-anual");
+    corpo.innerHTML = "";
+
+    const anos = Object.keys(resumo).sort();
+
+    anos.forEach(function (ano) {
+        const item = resumo[ano];
+        const saldo = item.entradas - item.saidas;
+        const situacao = saldo > 0 ? "🟢" : saldo < 0 ? "🔴" : "⚪";
+
+        const linha = document.createElement("tr");
+        linha.innerHTML =
+            "<td>" + ano + "</td>" +
+            "<td>R$ " + item.entradas.toFixed(2) + "</td>" +
+            "<td>R$ " + item.saidas.toFixed(2) + "</td>" +
+            "<td>R$ " + saldo.toFixed(2) + "</td>" +
+            "<td>" + situacao + "</td>";
+        corpo.appendChild(linha);
+    });
+}
+
 let grafico = null;
 
 function preencherSeletorMeses() {
@@ -208,6 +252,7 @@ form.addEventListener("submit", function (evento) {
     salvar();
     renderizar();
     renderizarResumo();
+    renderizarResumoAnual();
     preencherSeletorMeses();
     renderizarDashboard();
     form.reset();
@@ -215,5 +260,6 @@ form.addEventListener("submit", function (evento) {
 
 renderizar();
 renderizarResumo();
+renderizarResumoAnual();
 preencherSeletorMeses();
 renderizarDashboard();
