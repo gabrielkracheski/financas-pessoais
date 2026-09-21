@@ -1,23 +1,109 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    query,
+    where,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDkYOSD4sBg7_SxF0R9BmJ_LqxIrzkRQXE",
+    authDomain: "financas-pessoais-f8d56.firebaseapp.com",
+    projectId: "financas-pessoais-f8d56",
+    storageBucket: "financas-pessoais-f8d56.firebasestorage.app",
+    messagingSenderId: "401364657824",
+    appId: "1:401364657824:web:cbe771ced21c80162d4bc5"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const telaLogin = document.getElementById("tela-login");
+const telaApp = document.getElementById("tela-app");
+const loginErro = document.getElementById("login-erro");
+
+document.getElementById("botao-entrar").addEventListener("click", function () {
+    const email = document.getElementById("login-email").value;
+    const senha = document.getElementById("login-senha").value;
+
+    signInWithEmailAndPassword(auth, email, senha)
+        .catch(function (erro) {
+            loginErro.textContent = "E-mail ou senha inválidos.";
+        });
+});
+
+document.getElementById("botao-criar-conta").addEventListener("click", function () {
+    const email = document.getElementById("login-email").value;
+    const senha = document.getElementById("login-senha").value;
+
+    createUserWithEmailAndPassword(auth, email, senha)
+        .catch(function (erro) {
+            loginErro.textContent = erro.message;
+        });
+});
+
+document.getElementById("botao-sair").addEventListener("click", function () {
+    signOut(auth);
+});
+
+let lancamentos = [];
+let pararDeEscutar = null;
+
+onAuthStateChanged(auth, function (usuario) {
+    if (usuario) {
+        telaLogin.style.display = "none";
+        telaApp.style.display = "block";
+
+        const consulta = query(
+            collection(db, "lancamentos"),
+            where("uid", "==", usuario.uid)
+        );
+
+        pararDeEscutar = onSnapshot(consulta, function (snapshot) {
+            lancamentos = snapshot.docs.map(function (documento) {
+                return { id: documento.id, ...documento.data() };
+            });
+
+            renderizar();
+            renderizarResumo();
+            renderizarResumoAnual();
+            preencherSeletorMeses();
+            renderizarDashboard();
+        });
+
+    } else {
+        telaLogin.style.display = "block";
+        telaApp.style.display = "none";
+
+        if (pararDeEscutar) {
+            pararDeEscutar();
+        }
+        lancamentos = [];
+    }
+});
+
 const form = document.getElementById("form-lancamento");
 const lista = document.getElementById("lista-lancamentos");
 
-let lancamentos = JSON.parse(localStorage.getItem("lancamentos")) || [];
-
-function salvar() {
-    localStorage.setItem("lancamentos", JSON.stringify(lancamentos));
-}
-
-function excluirLancamento(indice) {
+async function excluirLancamento(indice) {
     const confirmar = confirm("Tem certeza que deseja excluir este lançamento?");
     if (!confirmar) return;
 
-    lancamentos.splice(indice, 1);
-    salvar();
-    renderizar();
-    renderizarResumo();
-    renderizarResumoAnual();
-    preencherSeletorMeses();
-    renderizarDashboard();
+    const idDocumento = lancamentos[indice].id;
+    await deleteDoc(doc(db, "lancamentos", idDocumento));
 }
 
 let indiceEmEdicao = null;
@@ -229,10 +315,11 @@ function renderizarDashboard() {
 
 document.getElementById("mes-dashboard").addEventListener("change", renderizarDashboard);
 
-form.addEventListener("submit", function (evento) {
+form.addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
     const lancamento = {
+        uid: auth.currentUser.uid,
         data: document.getElementById("data").value,
         descricao: document.getElementById("descricao").value,
         categoria: document.getElementById("categoria").value,
@@ -242,19 +329,14 @@ form.addEventListener("submit", function (evento) {
     };
 
     if (indiceEmEdicao === null) {
-        lancamentos.push(lancamento);
+        await addDoc(collection(db, "lancamentos"), lancamento);
     } else {
-        lancamentos[indiceEmEdicao] = lancamento;
+        const idDocumento = lancamentos[indiceEmEdicao].id;
+        await updateDoc(doc(db, "lancamentos", idDocumento), lancamento);
         indiceEmEdicao = null;
         form.querySelector("button[type=submit]").textContent = "Adicionar";
     }
 
-    salvar();
-    renderizar();
-    renderizarResumo();
-    renderizarResumoAnual();
-    preencherSeletorMeses();
-    renderizarDashboard();
     form.reset();
 });
 
