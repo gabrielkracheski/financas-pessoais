@@ -1,12 +1,229 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
+:root {
+    --cor-fundo: #f4f6f8;
+    --cor-texto: #1e293b;
+    --cor-card: #ffffff;
+    --cor-borda: #e2e8f0;
+    --cor-sidebar: #1e293b;
+    --cor-sidebar-hover: #334155;
+    --cor-destaque: #2563eb;
+    --cor-destaque-hover: #1d4ed8;
+    --cor-sombra: rgba(0, 0, 0, 0.08);
 }
 
-h1 {
-    color: #2c3e50;
+[data-tema="escuro"] {
+    --cor-fundo: #0f172a;
+    --cor-texto: #e2e8f0;
+    --cor-card: #1e293b;
+    --cor-borda: #334155;
+    --cor-sidebar: #020617;
+    --cor-sidebar-hover: #1e293b;
+    --cor-destaque: #3b82f6;
+    --cor-destaque-hover: #60a5fa;
+    --cor-sombra: rgba(0, 0, 0, 0.4);
+}
+
+    {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+/* ---------- Tela de login ---------- */
+
+#tela-login {
+    max-width: 320px;
+    margin: 80px auto;
+    padding: 24px;
+    background: var(--cor-card);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
+
+    .icone-login {
+        width: 48px;
+        height: 48px;
+        color: var(--cor-destaque);
+        margin-bottom: 8px;
+    }
+}
+
+#tela-login input {
+    display: block;
+    width: 93%;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+.botao-primario,
+.botao-secundario {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.botao-primario {
+    background-color: var(--cor-destaque);
+    color: white;
+    border: none;
+}
+
+.botao-primario:hover {
+    background-color: var(--cor-destaque-hover);
+}
+
+.botao-secundario {
+    background-color: white;
+    color: var(--cor-destaque);
+    border: 1.5px solid var(--cor-destaque);
+}
+
+.botao-secundario:hover {
+    background-color: #eff6ff;
+}
+
+
+/* ---------- Layout principal ---------- */
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background-color: var(--cor-sidebar);
+    color: white;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar h2 {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+}
+
+.sidebar button {
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.sidebar button:hover {
+    background-color: var(--cor-sidebar-hover);
+}
+
+.sidebar button.ativo {
+    background-color: var(--cor-destaque);
+    font-weight: bold;
+}
+
+.conteudo {
+    flex-grow: 1;
+    padding: 32px;
+}
+
+/* ---------- Elementos gerais ---------- */
+
+h1 {
+    margin-top: 0;
+    color: #1e293b;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    background: var(--cor-card);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+th,
+td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+th {
+    background-color: var(--cor-borda);
+}
+
+form {
+    background: var(--cor-card);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    gap: 4px;
+}
+
+form input,
+form select {
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+button {
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    align-self: flex-end;
+    background-color: var(--cor-destaque);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+}
+
+#lista-lancamentos {
+    list-style: none;
+    padding: 0;
+}
+
+#lista-lancamentos li {
+    background: var(--cor-card);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }

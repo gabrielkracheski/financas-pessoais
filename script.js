@@ -35,6 +35,40 @@ const telaLogin = document.getElementById("tela-login");
 const telaApp = document.getElementById("tela-app");
 const loginErro = document.getElementById("login-erro");
 
+const botoesNav = document.querySelectorAll(".nav-item");
+const secoes = document.querySelectorAll(".secao");
+
+const botaoTema = document.getElementById("botao-tema");
+const temaSalvo = localStorage.getItem("tema") || "claro";
+
+document.documentElement.setAttribute("data-tema", temaSalvo);
+
+botaoTema.addEventListener("click", function () {
+    const temaAtual = document.documentElement.getAttribute("data-tema");
+    const novoTema = temaAtual === "claro" ? "escuro" : "claro";
+
+    document.documentElement.setAttribute("data-tema", novoTema);
+    localStorage.setItem("tema", novoTema);
+});
+
+function mostrarSecao(nomeSecao) {
+    secoes.forEach(function (secao) {
+        secao.style.display = secao.id === "secao-" + nomeSecao ? "block" : "none";
+    });
+
+    botoesNav.forEach(function (botao) {
+        botao.classList.toggle("ativo", botao.dataset.secao === nomeSecao);
+    });
+}
+
+botoesNav.forEach(function (botao) {
+    botao.addEventListener("click", function () {
+        mostrarSecao(botao.dataset.secao);
+    });
+});
+
+mostrarSecao("lancamentos");
+
 document.getElementById("botao-entrar").addEventListener("click", function () {
     const email = document.getElementById("login-email").value;
     const senha = document.getElementById("login-senha").value;

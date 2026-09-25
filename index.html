@@ -11,98 +11,129 @@
 <body>
 
     <div id="tela-login">
+
+        <svg class="icone-login" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5" />
+            <path d="M3 10H21" stroke="currentColor" stroke-width="1.5" />
+            <path d="M7 7V5.5C7 4.67157 7.67157 4 8.5 4H15.5C16.3284 4 17 4.67157 17 5.5V7" stroke="currentColor"
+                stroke-width="1.5" />
+            <circle cx="16.5" cy="14.5" r="1.5" fill="currentColor" />
+        </svg>
+
         <h1>Login</h1>
         <input type="email" id="login-email" placeholder="E-mail">
         <input type="password" id="login-senha" placeholder="Senha">
-        <button id="botao-entrar">Entrar</button>
-        <button id="botao-criar-conta">Criar conta</button>
+        <button id="botao-entrar" class="botao-primario">Entrar</button>
+        <button id="botao-criar-conta" class="botao-secundario">Criar conta</button>
         <p id="login-erro" style="color: red;"></p>
     </div>
 
     <div id="tela-app" style="display: none;">
 
-        <h1>Controle Financeiro Pessoal</h1>
-        <button id="botao-sair">Sair</button>
+        <div class="layout">
 
-        <h1>Controle Financeiro Pessoal</h1>
+            <nav class="sidebar">
+                <h2>Financeiro</h2>
+                <button class="nav-item" data-secao="lancamentos">Lançamentos</button>
+                <button class="nav-item" data-secao="resumos">Resumos</button>
+                <button class="nav-item" data-secao="dashboard">Dashboard</button>
+                <button id="botao-tema">Alternar tema</button>
+                <button id="botao-sair">Sair</button>
+            </nav>
 
-        <form id="form-lancamento">
-            <label for="data">Data</label>
-            <input type="date" id="data" required>
+            <main class="conteudo">
 
-            <label for="descricao">Descrição</label>
-            <input type="text" id="descricao" placeholder="Ex: Almoço" required>
+                <section id="secao-lancamentos" class="secao">
+                    <h1>Lançamentos</h1>
 
-            <label for="categoria">Categoria</label>
-            <select id="categoria" required>
-                <option value="">Selecione</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Transporte">Transporte</option>
-                <option value="Moradia">Moradia</option>
-                <option value="Saúde">Saúde</option>
-                <option value="Lazer">Lazer</option>
-                <option value="Compras">Compras</option>
-                <option value="Contas Fixas">Contas Fixas</option>
-                <option value="Educação">Educação</option>
-            </select>
+                    <form id="form-lancamento">
+                        <label for="data">Data</label>
+                        <input type="date" id="data" required>
 
-            <label for="tipo">Tipo</label>
-            <select id="tipo" required>
-                <option value="Entrada">Entrada</option>
-                <option value="Saída">Saída</option>
-            </select>
+                        <label for="descricao">Descrição</label>
+                        <input type="text" id="descricao" placeholder="Ex: Almoço" required>
 
-            <label for="valor">Valor (R$)</label>
-            <input type="number" id="valor" step="0.01" required>
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" required>
+                            <option value="">Selecione</option>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Compras">Compras</option>
+                            <option value="Contas Fixas">Contas Fixas</option>
+                            <option value="Educação">Educação</option>
+                        </select>
 
-            <label for="forma">Forma de Pagamento</label>
-            <select id="forma">
-                <option value="Pix">Pix</option>
-                <option value="Débito">Débito</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Caju">Caju</option>
-            </select>
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" required>
+                            <option value="Entrada">Entrada</option>
+                            <option value="Saída">Saída</option>
+                        </select>
 
-            <button type="submit">Adicionar</button>
-        </form>
+                        <label for="valor">Valor (R$)</label>
+                        <input type="number" id="valor" step="0.01" required>
 
-        <h2>Lançamentos</h2>
-        <ul id="lista-lancamentos"></ul>
+                        <label for="forma">Forma de Pagamento</label>
+                        <select id="forma">
+                            <option value="Pix">Pix</option>
+                            <option value="Débito">Débito</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Caju">Caju</option>
+                        </select>
 
-        <h2>Resumo Mensal</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Mês</th>
-                    <th>Entradas</th>
-                    <th>Saídas</th>
-                    <th>Saldo</th>
-                    <th>Situação</th>
-                </tr>
-            </thead>
-            <tbody id="corpo-resumo"></tbody>
-        </table>
+                        <button type="submit">Adicionar</button>
+                    </form>
 
-        <h2>Resumo Anual</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ano</th>
-                    <th>Entradas</th>
-                    <th>Saídas</th>
-                    <th>Saldo</th>
-                    <th>Situação</th>
-                </tr>
-            </thead>
-            <tbody id="corpo-resumo-anual"></tbody>
-        </table>
+                    <h2>Lançamentos</h2>
+                    <ul id="lista-lancamentos"></ul>
+                </section>
 
-        <h2>Dashboard por Categoria</h2>
-        <label for="mes-dashboard">Mês/Ano:</label>
-        <select id="mes-dashboard"></select>
+                <section id="secao-resumos" class="secao">
+                    <h1>Resumos</h1>
 
-        <div style="max-width: 300px; margin: 0 auto;">
-            <canvas id="grafico-categorias" width="400" height="300"></canvas>
+                    <h2>Resumo Mensal</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                <th>Entradas</th>
+                                <th>Saídas</th>
+                                <th>Saldo</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-resumo"></tbody>
+                    </table>
+
+                    <h2>Resumo Anual</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Entradas</th>
+                                <th>Saídas</th>
+                                <th>Saldo</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-resumo-anual"></tbody>
+                    </table>
+                </section>
+
+                <section id="secao-dashboard" class="secao">
+                    <h1>Dashboard</h1>
+
+                    <label for="mes-dashboard">Mês/Ano:</label>
+                    <select id="mes-dashboard"></select>
+
+                    <div style="max-width: 400px; margin: 0 auto;">
+                        <canvas id="grafico-categorias"></canvas>
+                    </div>
+                </section>
+
+            </main>
         </div>
 
     </div>
