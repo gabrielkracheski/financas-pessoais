@@ -141,11 +141,26 @@
 
                 <section id="secao-dashboard" class="secao">
                     <h1>Dashboard</h1>
-
-                    <label for="mes-dashboard">Mês/Ano:</label>
-                    <select id="mes-dashboard"></select>
-
-                    <div style="max-width: 400px; margin: 0 auto;">
+                    <div class="filtro-dashboard">
+                        <label for="mes-dashboard">Mês/Ano</label>
+                        <select id="mes-dashboard"></select>
+                    </div>
+                    <div class="cards-resumo">
+                        <div class="card-metrica">
+                            <span class="card-metrica-label">Total gasto:</span>
+                            <span class="card-metrica-valor" id="metrica-total">R$ 0,00</span>
+                        </div>
+                        <div class="card-metrica">
+                            <span class="card-metrica-label">Categoria que mais pesou:</span>
+                            <span class="card-metrica-valor" id="metrica-top-categoria">-</span>
+                        </div>
+                        <div class="card-metrica">
+                            <span class="card-metrica-label">Categorias com gasto:</span>
+                            <span class="card-metrica-valor" id="metrica-num-categorias">0</span>
+                        </div>
+                    </div>
+                    <div class="card-grafico">
+                        <h2>Gastos por Categoria</h2>
                         <canvas id="grafico-categorias"></canvas>
                     </div>
                 </section>

@@ -327,8 +327,21 @@ function renderizarDashboard() {
     if (!chaveMes) return;
 
     const dados = calcularGastosPorCategoria(chaveMes);
-    const categorias = Object.keys(dados);
-    const valores = categorias.map(function (cat) { return dados[cat]; });
+
+    const categoriasOrdenadas = Object.keys(dados).sort(function (a, b) {
+        return dados[b] - dados[a];
+    });
+
+    const categorias = categoriasOrdenadas;
+    const valores = categoriasOrdenadas.map(function (cat) { return dados[cat]; });
+
+    const total = valores.reduce(function (soma, valor) { return soma + valor; }, 0);
+    const topCategoria = categorias.length > 0 ? categorias[0] : "-";
+
+    document.getElementById("metrica-total").textContent =
+        "R$ " + total.toFixed(2).replace(".", ",");
+    document.getElementById("metrica-top-categoria").textContent = topCategoria;
+    document.getElementById("metrica-num-categorias").textContent = categorias.length;
 
     const ctx = document.getElementById("grafico-categorias");
 
@@ -337,12 +350,42 @@ function renderizarDashboard() {
     }
 
     grafico = new Chart(ctx, {
-        type: "pie",
+        type: "bar",
         data: {
             labels: categorias,
             datasets: [{
-                data: valores
+                label: "Gastos (R$)",
+                data: valores,
+                backgroundColor: "#2563eb",
+                borderRadius: 6
             }]
+        },
+        options: {
+            indexAxis: "y",
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (contexto) {
+                            return "R$ " + contexto.parsed.x.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: "rgba(148, 163, 184, 0.2)" },
+                    ticks: {
+                        callback: function (valor) {
+                            return "R$ " + valor;
+                        }
+                    }
+                },
+                y: {
+                    grid: { display: false }
+                }
+            }
         }
     });
 }
