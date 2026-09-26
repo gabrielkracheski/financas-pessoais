@@ -63,52 +63,142 @@
                 <section id="secao-lancamentos" class="secao">
                     <h1>Lançamentos</h1>
 
-                    <form id="form-lancamento">
-                        <label for="data">Data</label>
-                        <input type="date" id="data" required>
+                    <button id="botao-novo-lancamento" class="botao-primario botao-compacto" type="button">+ Novo
+                        Lançamento</button>
 
-                        <label for="descricao">Descrição</label>
-                        <input type="text" id="descricao" placeholder="Ex: Almoço" required>
+                    <div id="modal-lancamento" class="modal-overlay" style="display: none;">
+                        <div class="modal-conteudo">
+                            <div class="modal-cabecalho">
+                                <h2 id="modal-titulo">Novo Lançamento</h2>
+                                <button id="botao-fechar-modal" class="botao-fechar" type="button">&times;</button>
+                            </div>
 
-                        <label for="categoria">Categoria</label>
-                        <select id="categoria" required>
-                            <option value="">Selecione</option>
-                            <option value="Alimentação">Alimentação</option>
-                            <option value="Transporte">Transporte</option>
-                            <option value="Moradia">Moradia</option>
-                            <option value="Saúde">Saúde</option>
-                            <option value="Lazer">Lazer</option>
-                            <option value="Compras">Compras</option>
-                            <option value="Contas Fixas">Contas Fixas</option>
-                            <option value="Educação">Educação</option>
-                        </select>
+                            <form id="form-lancamento">
+                                <label for="data">Data:</label>
+                                <input type="date" id="data" required>
 
-                        <label for="tipo">Tipo</label>
-                        <select id="tipo" required>
-                            <option value="Entrada">Entrada</option>
-                            <option value="Saída">Saída</option>
-                        </select>
+                                <label for="descricao">Descrição:</label>
+                                <input type="text" id="descricao" placeholder="Ex: Almoço" required>
 
-                        <label for="valor">Valor (R$)</label>
-                        <input type="number" id="valor" step="0.01" required>
+                                <label for="categoria">Categoria:</label>
+                                <select id="categoria" required>
+                                    <option value="">Selecione</option>
+                                    <option value="Alimentação">Alimentação</option>
+                                    <option value="Transporte">Transporte</option>
+                                    <option value="Moradia">Moradia</option>
+                                    <option value="Saúde">Saúde</option>
+                                    <option value="Lazer">Lazer</option>
+                                    <option value="Compras">Compras</option>
+                                    <option value="Contas Fixas">Contas Fixas</option>
+                                    <option value="Educação">Educação</option>
+                                </select>
 
-                        <label for="forma">Forma de Pagamento</label>
-                        <select id="forma">
-                            <option value="Pix">Pix</option>
-                            <option value="Débito">Débito</option>
-                            <option value="Crédito">Crédito</option>
-                            <option value="Caju">Caju</option>
-                        </select>
+                                <label for="tipo">Tipo:</label>
+                                <select id="tipo" required>
+                                    <option value="Entrada">Entrada</option>
+                                    <option value="Saída">Saída</option>
+                                </select>
 
-                        <button type="submit">Adicionar</button>
-                    </form>
+                                <label for="valor">Valor (R$):</label>
+                                <input type="number" id="valor" step="0.01" required>
 
-                    <h2>Lançamentos</h2>
-                    <ul id="lista-lancamentos"></ul>
+                                <label for="forma">Forma de Pagamento:</label>
+                                <select id="forma">
+                                    <option value="Pix">Pix</option>
+                                    <option value="Débito">Débito</option>
+                                    <option value="Crédito">Crédito</option>
+                                    <option value="Caju">Caju</option>
+                                </select>
+
+                                <button type="submit">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>                  
+
+                    <p class="rotulo-secao">Filtros</p>
+                    <div class="barra-filtros">
+                        <div class="campo">
+                            <label for="filtro-data-inicio">De:</label>
+                            <input type="date" id="filtro-data-inicio">
+                        </div>
+
+                        <div class="campo">
+                            <label for="filtro-data-fim">Até:</label>
+                            <input type="date" id="filtro-data-fim">
+                        </div>
+
+                        <div class="campo">
+                            <label for="filtro-categoria">Categoria:</label>
+                            <select id="filtro-categoria">
+                                <option value="">Todas</option>
+                                <option value="Alimentação">Alimentação</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Moradia">Moradia</option>
+                                <option value="Saúde">Saúde</option>
+                                <option value="Lazer">Lazer</option>
+                                <option value="Compras">Compras</option>
+                                <option value="Contas Fixas">Contas Fixas</option>
+                                <option value="Educação">Educação</option>
+                            </select>
+                        </div>
+
+                        <div class="campo">
+                            <label for="filtro-tipo">Tipo:</label>
+                            <select id="filtro-tipo">
+                                <option value="">Todos</option>
+                                <option value="Entrada">Entrada</option>
+                                <option value="Saída">Saída</option>
+                            </select>
+                        </div>
+
+                        <div class="campo">
+                            <label for="filtro-forma">Forma de Pagamento:</label>
+                            <select id="filtro-forma">
+                                <option value="">Todas</option>
+                                <option value="Pix">Pix</option>
+                                <option value="Débito">Débito</option>
+                                <option value="Crédito">Crédito</option>
+                                <option value="Caju">Caju</option>
+                            </select>
+                        </div>
+
+                        <button id="botao-limpar-filtros" class="botao-secundario" type="button">Limpar filtros</button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>Forma</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-lancamentos"></tbody>
+                    </table>
+
                 </section>
 
                 <section id="secao-resumos" class="secao">
                     <h1>Resumos</h1>
+
+                    <div class="cards-resumo">
+                        <div class="card-metrica">
+                            <span class="card-metrica-label" id="label-mes-atual">Mês atual</span>
+                            <span class="card-metrica-valor" id="metrica-entradas-mes">R$ 0,00</span>
+                        </div>
+                        <div class="card-metrica">
+                            <span class="card-metrica-label">Saídas</span>
+                            <span class="card-metrica-valor" id="metrica-saidas-mes">R$ 0,00</span>
+                        </div>
+                        <div class="card-metrica">
+                            <span class="card-metrica-label">Saldo</span>
+                            <span class="card-metrica-valor" id="metrica-saldo-mes">R$ 0,00</span>
+                        </div>
+                    </div>
 
                     <h2>Resumo Mensal</h2>
                     <table>
@@ -141,9 +231,11 @@
 
                 <section id="secao-dashboard" class="secao">
                     <h1>Dashboard</h1>
-                    <div class="filtro-dashboard">
-                        <label for="mes-dashboard">Mês/Ano</label>
-                        <select id="mes-dashboard"></select>
+                    <div class="barra-filtros">
+                        <div class="campo">
+                            <label for="mes-dashboard">Mês/Ano</label>
+                            <select id="mes-dashboard"></select>
+                        </div>
                     </div>
                     <div class="cards-resumo">
                         <div class="card-metrica">

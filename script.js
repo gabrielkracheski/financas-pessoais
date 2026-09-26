@@ -132,6 +132,33 @@ onAuthStateChanged(auth, function (usuario) {
 const form = document.getElementById("form-lancamento");
 const lista = document.getElementById("lista-lancamentos");
 
+const filtroDataInicio = document.getElementById("filtro-data-inicio");
+const filtroDataFim = document.getElementById("filtro-data-fim");
+const filtroCategoria = document.getElementById("filtro-categoria");
+const filtroTipo = document.getElementById("filtro-tipo");
+const filtroForma = document.getElementById("filtro-forma");
+const botaoLimparFiltros = document.getElementById("botao-limpar-filtros");
+
+const modal = document.getElementById("modal-lancamento");
+const modalTitulo = document.getElementById("modal-titulo");
+const botaoNovoLancamento = document.getElementById("botao-novo-lancamento");
+const botaoFecharModal = document.getElementById("botao-fechar-modal");
+
+filtroDataInicio.addEventListener("change", renderizar);
+filtroDataFim.addEventListener("change", renderizar);
+filtroCategoria.addEventListener("change", renderizar);
+filtroTipo.addEventListener("change", renderizar);
+filtroForma.addEventListener("change", renderizar);
+
+botaoLimparFiltros.addEventListener("click", function () {
+    filtroDataInicio.value = "";
+    filtroDataFim.value = "";
+    filtroCategoria.value = "";
+    filtroTipo.value = "";
+    filtroForma.value = "";
+    renderizar();
+});
+
 async function excluirLancamento(indice) {
     const confirmar = confirm("Tem certeza que deseja excluir este lançamento?");
     if (!confirmar) return;
@@ -141,6 +168,30 @@ async function excluirLancamento(indice) {
 }
 
 let indiceEmEdicao = null;
+
+function abrirModal(titulo) {
+    modalTitulo.textContent = titulo;
+    modal.style.display = "flex";
+}
+
+function fecharModal() {
+    modal.style.display = "none";
+    form.reset();
+    indiceEmEdicao = null;
+    form.querySelector("button[type=submit]").textContent = "Adicionar";
+}
+
+botaoNovoLancamento.addEventListener("click", function () {
+    abrirModal("Novo Lançamento");
+});
+
+botaoFecharModal.addEventListener("click", fecharModal);
+
+modal.addEventListener("click", function (evento) {
+    if (evento.target === modal) {
+        fecharModal();
+    }
+});
 
 function editarLancamento(indice) {
     const item = lancamentos[indice];
@@ -154,35 +205,80 @@ function editarLancamento(indice) {
 
     indiceEmEdicao = indice;
     form.querySelector("button[type=submit]").textContent = "Salvar alteração";
+    abrirModal("Editar Lançamento");
+}
+
+function formatarData(dataISO) {
+    const [ano, mes, dia] = dataISO.split("-");
+    return dia + "-" + mes + "-" + ano;
 }
 
 function renderizar() {
     lista.innerHTML = "";
 
-    lancamentos.forEach(function (item, indice) {
-        const linha = document.createElement("li");
+    const dataInicio = filtroDataInicio.value;
+    const dataFim = filtroDataFim.value;
+    const categoriaEscolhida = filtroCategoria.value;
+    const tipoEscolhido = filtroTipo.value;
+    const formaEscolhida = filtroForma.value;
 
-        const texto = document.createElement("span");
-        texto.textContent =
-            item.data + " | " + item.descricao + " | " + item.categoria +
-            " | " + item.tipo + " | R$ " + item.valor.toFixed(2) +
-            " | " + item.forma;
+    const lancamentosFiltrados = lancamentos.filter(function (item) {
+        const passaDataInicio = dataInicio === "" || item.data >= dataInicio;
+        const passaDataFim = dataFim === "" || item.data <= dataFim;
+        const passaCategoria = categoriaEscolhida === "" || item.categoria === categoriaEscolhida;
+        const passaTipo = tipoEscolhido === "" || item.tipo === tipoEscolhido;
+        const passaForma = formaEscolhida === "" || item.forma === formaEscolhida;
+        return passaDataInicio && passaDataFim && passaCategoria && passaTipo && passaForma;
+    });
+
+    lancamentosFiltrados.forEach(function (item) {
+        const linha = document.createElement("tr");
+
+        const celulaData = document.createElement("td");
+        celulaData.textContent = formatarData(item.data);
+
+        const celulaDescricao = document.createElement("td");
+        celulaDescricao.textContent = item.descricao;
+
+        const celulaCategoria = document.createElement("td");
+        celulaCategoria.textContent = item.categoria;
+
+        const celulaTipo = document.createElement("td");
+        celulaTipo.textContent = item.tipo;
+
+        const celulaValor = document.createElement("td");
+        celulaValor.textContent = "R$ " + item.valor.toFixed(2).replace(".", ",");
+
+        const celulaForma = document.createElement("td");
+        celulaForma.textContent = item.forma;
+
+        const celulaAcoes = document.createElement("td");
 
         const botaoEditar = document.createElement("button");
         botaoEditar.textContent = "Editar";
         botaoEditar.addEventListener("click", function () {
-            editarLancamento(indice);
+            const indiceReal = lancamentos.indexOf(item);
+            editarLancamento(indiceReal);
         });
 
         const botaoExcluir = document.createElement("button");
         botaoExcluir.textContent = "Excluir";
         botaoExcluir.addEventListener("click", function () {
-            excluirLancamento(indice);
+            const indiceReal = lancamentos.indexOf(item);
+            excluirLancamento(indiceReal);
         });
 
-        linha.appendChild(texto);
-        linha.appendChild(botaoEditar);
-        linha.appendChild(botaoExcluir);
+        celulaAcoes.appendChild(botaoEditar);
+        celulaAcoes.appendChild(botaoExcluir);
+
+        linha.appendChild(celulaData);
+        linha.appendChild(celulaDescricao);
+        linha.appendChild(celulaCategoria);
+        linha.appendChild(celulaTipo);
+        linha.appendChild(celulaValor);
+        linha.appendChild(celulaForma);
+        linha.appendChild(celulaAcoes);
+
         lista.appendChild(linha);
     });
 }
@@ -225,10 +321,27 @@ function renderizarResumo() {
 
     const chaves = Object.keys(resumo).sort();
 
+    if (chaves.length > 0) {
+        const chaveRecente = chaves[chaves.length - 1];
+        const itemRecente = resumo[chaveRecente];
+        const saldoRecente = itemRecente.entradas - itemRecente.saidas;
+
+        document.getElementById("label-mes-atual").textContent =
+            "Entradas (" + meses[itemRecente.mes] + "/" + itemRecente.ano + ")";
+        document.getElementById("metrica-entradas-mes").textContent =
+            "R$ " + itemRecente.entradas.toFixed(2).replace(".", ",");
+        document.getElementById("metrica-saidas-mes").textContent =
+            "R$ " + itemRecente.saidas.toFixed(2).replace(".", ",");
+        document.getElementById("metrica-saldo-mes").textContent =
+            "R$ " + saldoRecente.toFixed(2).replace(".", ",");
+    }
+
     chaves.forEach(function (chave) {
         const item = resumo[chave];
         const saldo = item.entradas - item.saidas;
-        const situacao = saldo > 0 ? "🟢" : saldo < 0 ? "🔴" : "⚪";
+
+        const classeSituacao = saldo > 0 ? "badge-positivo" : saldo < 0 ? "badge-negativo" : "badge-neutro";
+        const textoSituacao = saldo > 0 ? "Positivo" : saldo < 0 ? "Negativo" : "Neutro";
 
         const linha = document.createElement("tr");
         linha.innerHTML =
@@ -236,7 +349,7 @@ function renderizarResumo() {
             "<td>R$ " + item.entradas.toFixed(2) + "</td>" +
             "<td>R$ " + item.saidas.toFixed(2) + "</td>" +
             "<td>R$ " + saldo.toFixed(2) + "</td>" +
-            "<td>" + situacao + "</td>";
+            "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
 }
@@ -271,7 +384,9 @@ function renderizarResumoAnual() {
     anos.forEach(function (ano) {
         const item = resumo[ano];
         const saldo = item.entradas - item.saidas;
-        const situacao = saldo > 0 ? "🟢" : saldo < 0 ? "🔴" : "⚪";
+
+        const classeSituacao = saldo > 0 ? "badge-positivo" : saldo < 0 ? "badge-negativo" : "badge-neutro";
+        const textoSituacao = saldo > 0 ? "Positivo" : saldo < 0 ? "Negativo" : "Neutro";
 
         const linha = document.createElement("tr");
         linha.innerHTML =
@@ -279,7 +394,7 @@ function renderizarResumoAnual() {
             "<td>R$ " + item.entradas.toFixed(2) + "</td>" +
             "<td>R$ " + item.saidas.toFixed(2) + "</td>" +
             "<td>R$ " + saldo.toFixed(2) + "</td>" +
-            "<td>" + situacao + "</td>";
+            "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
 }
@@ -415,6 +530,7 @@ form.addEventListener("submit", async function (evento) {
     }
 
     form.reset();
+    fecharModal();
 });
 
 renderizar();

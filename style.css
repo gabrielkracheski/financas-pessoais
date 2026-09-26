@@ -22,7 +22,7 @@
     --cor-sombra: rgba(0, 0, 0, 0.4);
 }
 
-    {
+* {
     box-sizing: border-box;
 }
 
@@ -54,7 +54,7 @@ body {
 
 #tela-login input {
     display: block;
-    width: 93%;
+    width: 100%;
     margin: 10px 0;
     padding: 10px;
     border: 1px solid #cbd5e1;
@@ -228,6 +228,7 @@ form {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 12px;
     margin-bottom: 24px;
 }
@@ -240,10 +241,14 @@ form label {
 }
 
 form input,
-form select {
+form select,
+.barra-filtros input,
+.barra-filtros select {
     padding: 8px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--cor-borda);
     border-radius: 6px;
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
 }
 
 button {
@@ -264,16 +269,9 @@ button[type="submit"] {
     padding: 0;
 }
 
-#lista-lancamentos li {
-    background: var(--cor-card);
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+#lista-lancamentos td:last-child {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .card-grafico {
@@ -289,15 +287,16 @@ button[type="submit"] {
     color: var(--cor-texto);
 }
 
-.filtro-dashboard {
+.barra-filtros {
     background: var(--cor-card);
     padding: 16px 20px;
     border-radius: 8px;
     box-shadow: 0 1px 4px var(--cor-sombra);
     margin-bottom: 24px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .filtro-dashboard label {
@@ -329,32 +328,164 @@ button[type="submit"] {
 }
 
 .cards-resumo {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
 }
 
 .card-metrica {
-  background: var(--cor-card);
-  padding: 16px 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px var(--cor-sombra);
-  flex: 1;
-  min-width: 180px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    background: var(--cor-card);
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px var(--cor-sombra);
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .card-metrica-label {
-  font-size: 0.8rem;
-  color: var(--cor-texto);
-  opacity: 0.7;
+    font-size: 0.8rem;
+    color: var(--cor-texto);
+    opacity: 0.7;
 }
 
 .card-metrica-valor {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--cor-destaque);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-destaque);
+}
+
+#lista-lancamentos button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid var(--cor-borda);
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+#lista-lancamentos button:hover {
+    background: var(--cor-borda);
+}
+
+#lista-lancamentos button:last-child {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+#lista-lancamentos button:last-child:hover {
+    background: #fee2e2;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-positivo {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge-negativo {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-neutro {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.barra-filtros .botao-secundario {
+    width: auto;
+    padding: 10px 18px;
+    font-weight: normal;
+    align-self: center;
+    margin-top: 0;
+}
+
+.campo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.campo label {
+    font-size: 0.85rem;
+    color: var(--cor-texto);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-conteudo {
+    background: var(--cor-card);
+    border-radius: 8px;
+    padding: 24px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-conteudo form {
+    flex-direction: column;
+    align-items: stretch;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.modal-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-cabecalho h2 {
+    margin: 0;
+    color: var(--cor-texto);
+}
+
+.botao-fechar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--cor-texto);
+}
+
+.botao-compacto {
+    width: auto;
+    margin-bottom: 24px;
+}
+
+.rotulo-secao {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cor-texto);
+  opacity: 0.6;
+  margin: 0 0 8px 0;
 }
