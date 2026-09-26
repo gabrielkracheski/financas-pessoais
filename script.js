@@ -229,6 +229,8 @@ function renderizar() {
         const passaTipo = tipoEscolhido === "" || item.tipo === tipoEscolhido;
         const passaForma = formaEscolhida === "" || item.forma === formaEscolhida;
         return passaDataInicio && passaDataFim && passaCategoria && passaTipo && passaForma;
+    }).sort(function (a, b) {
+        return a.data.localeCompare(b.data);
     });
 
     lancamentosFiltrados.forEach(function (item) {
