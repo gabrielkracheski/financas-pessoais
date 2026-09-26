@@ -113,7 +113,7 @@
                                 <button type="submit">Adicionar</button>
                             </form>
                         </div>
-                    </div>                  
+                    </div>
 
                     <p class="rotulo-secao">Filtros</p>
                     <div class="barra-filtros">
@@ -179,6 +179,20 @@
                         </thead>
                         <tbody id="lista-lancamentos"></tbody>
                     </table>
+
+                    <div class="paginacao">
+                        <button id="botao-pagina-anterior" type="button">Anterior</button>
+                        <span id="texto-pagina">Página 1 de 1</span>
+                        <button id="botao-pagina-proxima" type="button">Próxima</button>
+                        <div class="campo campo-itens-pagina">
+                            <label for="itens-por-pagina">Itens por página</label>
+                            <select id="itens-por-pagina">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
 
                 </section>
 

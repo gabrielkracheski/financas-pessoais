@@ -132,6 +132,15 @@ onAuthStateChanged(auth, function (usuario) {
 const form = document.getElementById("form-lancamento");
 const lista = document.getElementById("lista-lancamentos");
 
+let paginaAtual = 1;
+let itensPorPagina = 10;
+let indiceEmEdicao = null;
+
+const botaoPaginaAnterior = document.getElementById("botao-pagina-anterior");
+const botaoPaginaProxima = document.getElementById("botao-pagina-proxima");
+const textoPagina = document.getElementById("texto-pagina");
+const seletorItensPorPagina = document.getElementById("itens-por-pagina");
+
 const filtroDataInicio = document.getElementById("filtro-data-inicio");
 const filtroDataFim = document.getElementById("filtro-data-fim");
 const filtroCategoria = document.getElementById("filtro-categoria");
@@ -144,11 +153,41 @@ const modalTitulo = document.getElementById("modal-titulo");
 const botaoNovoLancamento = document.getElementById("botao-novo-lancamento");
 const botaoFecharModal = document.getElementById("botao-fechar-modal");
 
-filtroDataInicio.addEventListener("change", renderizar);
-filtroDataFim.addEventListener("change", renderizar);
-filtroCategoria.addEventListener("change", renderizar);
-filtroTipo.addEventListener("change", renderizar);
-filtroForma.addEventListener("change", renderizar);
+filtroDataInicio.addEventListener("change", function () {
+    paginaAtual = 1;
+    renderizar();
+});
+filtroDataFim.addEventListener("change", function () {
+    paginaAtual = 1;
+    renderizar();
+});
+filtroCategoria.addEventListener("change", function () {
+    paginaAtual = 1;
+    renderizar();
+});
+filtroTipo.addEventListener("change", function () {
+    paginaAtual = 1;
+    renderizar();
+});
+filtroForma.addEventListener("change", function () {
+    paginaAtual = 1;
+    renderizar();
+});
+botaoPaginaAnterior.addEventListener("click", function () {
+    paginaAtual--;
+    renderizar();
+});
+
+botaoPaginaProxima.addEventListener("click", function () {
+    paginaAtual++;
+    renderizar();
+});
+
+seletorItensPorPagina.addEventListener("change", function () {
+    itensPorPagina = parseInt(seletorItensPorPagina.value);
+    paginaAtual = 1;
+    renderizar();
+});
 
 botaoLimparFiltros.addEventListener("click", function () {
     filtroDataInicio.value = "";
@@ -156,6 +195,7 @@ botaoLimparFiltros.addEventListener("click", function () {
     filtroCategoria.value = "";
     filtroTipo.value = "";
     filtroForma.value = "";
+    paginaAtual = 1;
     renderizar();
 });
 
@@ -166,8 +206,6 @@ async function excluirLancamento(indice) {
     const idDocumento = lancamentos[indice].id;
     await deleteDoc(doc(db, "lancamentos", idDocumento));
 }
-
-let indiceEmEdicao = null;
 
 function abrirModal(titulo) {
     modalTitulo.textContent = titulo;
@@ -233,7 +271,21 @@ function renderizar() {
         return a.data.localeCompare(b.data);
     });
 
-    lancamentosFiltrados.forEach(function (item) {
+    const totalPaginas = Math.max(1, Math.ceil(lancamentosFiltrados.length / itensPorPagina));
+
+    if (paginaAtual > totalPaginas) {
+        paginaAtual = totalPaginas;
+    }
+
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const lancamentosDaPagina = lancamentosFiltrados.slice(inicio, fim);
+
+    textoPagina.textContent = "Página " + paginaAtual + " de " + totalPaginas;
+    botaoPaginaAnterior.disabled = paginaAtual === 1;
+    botaoPaginaProxima.disabled = paginaAtual === totalPaginas;
+
+    lancamentosDaPagina.forEach(function (item) {
         const linha = document.createElement("tr");
 
         const celulaData = document.createElement("td");
