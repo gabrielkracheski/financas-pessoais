@@ -41,6 +41,8 @@ const secoes = document.querySelectorAll(".secao");
 const botaoTema = document.getElementById("botao-tema");
 const temaSalvo = localStorage.getItem("tema") || "claro";
 
+const textoUsuarioLogado = document.getElementById("texto-usuario-logado");
+
 document.documentElement.setAttribute("data-tema", temaSalvo);
 
 botaoTema.addEventListener("click", function () {
@@ -100,6 +102,7 @@ onAuthStateChanged(auth, function (usuario) {
     if (usuario) {
         telaLogin.style.display = "none";
         telaApp.style.display = "block";
+        textoUsuarioLogado.textContent = usuario.email;
 
         const consulta = query(
             collection(db, "lancamentos"),
@@ -152,6 +155,9 @@ const modal = document.getElementById("modal-lancamento");
 const modalTitulo = document.getElementById("modal-titulo");
 const botaoNovoLancamento = document.getElementById("botao-novo-lancamento");
 const botaoFecharModal = document.getElementById("botao-fechar-modal");
+
+const botaoImportar = document.getElementById("botao-importar");
+const inputArquivoPlanilha = document.getElementById("input-arquivo-planilha");
 
 filtroDataInicio.addEventListener("change", function () {
     paginaAtual = 1;
@@ -218,6 +224,51 @@ function fecharModal() {
     indiceEmEdicao = null;
     form.querySelector("button[type=submit]").textContent = "Adicionar";
 }
+
+function converterDataParaISO(valorData) {
+    if (valorData instanceof Date) {
+        const ano = valorData.getFullYear();
+        const mes = String(valorData.getMonth() + 1).padStart(2, "0");
+        const dia = String(valorData.getDate()).padStart(2, "0");
+        return ano + "-" + mes + "-" + dia;
+    }
+    return valorData;
+}
+
+botaoImportar.addEventListener("click", function () {
+    inputArquivoPlanilha.click();
+});
+
+inputArquivoPlanilha.addEventListener("change", async function (evento) {
+    const arquivo = evento.target.files[0];
+    if (!arquivo) return;
+
+    const dadosArquivo = await arquivo.arrayBuffer();
+    const planilha = XLSX.read(dadosArquivo, { cellDates: true });
+
+    const abaLancamentos = planilha.Sheets["Lancamentos"];
+    const linhas = XLSX.utils.sheet_to_json(abaLancamentos);
+
+    const confirmar = confirm("Foram encontradas " + linhas.length + " linhas. Deseja importar todas para o Firestore?");
+    if (!confirmar) return;
+
+    for (const linha of linhas) {
+        const lancamento = {
+            uid: auth.currentUser.uid,
+            data: converterDataParaISO(linha["Data"]),
+            descricao: linha["Descrição"],
+            categoria: linha["Categoria"],
+            tipo: linha["Tipo"],
+            valor: linha["Valor"],
+            forma: linha["Forma de Pagamento"]
+        };
+
+        await addDoc(collection(db, "lancamentos"), lancamento);
+    }
+
+    alert("Importação concluída!");
+    inputArquivoPlanilha.value = "";
+});
 
 botaoNovoLancamento.addEventListener("click", function () {
     abrirModal("Novo Lançamento");

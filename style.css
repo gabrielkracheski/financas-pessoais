@@ -477,7 +477,7 @@ button[type="submit"] {
 
 .botao-compacto {
     width: auto;
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 
 .rotulo-secao {
@@ -551,4 +551,20 @@ button[type="submit"] {
 .campo-itens-pagina label {
     font-size: 0.85rem;
     color: var(--cor-texto);
+}
+
+.usuario-logado {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: white;
+    opacity: 0.7;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acoes-lancamentos {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
 }

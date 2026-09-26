@@ -6,6 +6,7 @@
     <title>Controle Financeiro Pessoal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -42,6 +43,9 @@
                 </div>
 
                 <div class="sidebar-rodape">
+                    <div class="usuario-logado">
+                        <span id="texto-usuario-logado"></span>
+                    </div>
                     <button id="botao-tema" class="botao-icone" title="Alternar tema">
                         <svg class="icone-lua" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor"
@@ -63,8 +67,13 @@
                 <section id="secao-lancamentos" class="secao">
                     <h1>Lançamentos</h1>
 
-                    <button id="botao-novo-lancamento" class="botao-primario botao-compacto" type="button">+ Novo
-                        Lançamento</button>
+                    <div class="acoes-lancamentos">
+                        <button id="botao-novo-lancamento" class="botao-primario botao-compacto" type="button">+ Novo
+                            Lançamento</button>
+                        <button id="botao-importar" class="botao-secundario botao-compacto" type="button">Importar
+                            planilha</button>
+                    </div>
+                    <input type="file" id="input-arquivo-planilha" accept=".xlsx" style="display: none;">
 
                     <div id="modal-lancamento" class="modal-overlay" style="display: none;">
                         <div class="modal-conteudo">
@@ -84,13 +93,14 @@
                                 <select id="categoria" required>
                                     <option value="">Selecione</option>
                                     <option value="Alimentação">Alimentação</option>
-                                    <option value="Transporte">Transporte</option>
-                                    <option value="Moradia">Moradia</option>
-                                    <option value="Saúde">Saúde</option>
-                                    <option value="Lazer">Lazer</option>
                                     <option value="Compras">Compras</option>
                                     <option value="Contas Fixas">Contas Fixas</option>
                                     <option value="Educação">Educação</option>
+                                    <option value="Lazer">Lazer</option>
+                                    <option value="Moradia">Moradia</option>
+                                    <option value="Salário">Salário</option>
+                                    <option value="Saúde">Saúde</option>
+                                    <option value="Transporte">Transporte</option>
                                 </select>
 
                                 <label for="tipo">Tipo:</label>
@@ -132,13 +142,15 @@
                             <select id="filtro-categoria">
                                 <option value="">Todas</option>
                                 <option value="Alimentação">Alimentação</option>
-                                <option value="Transporte">Transporte</option>
-                                <option value="Moradia">Moradia</option>
-                                <option value="Saúde">Saúde</option>
-                                <option value="Lazer">Lazer</option>
                                 <option value="Compras">Compras</option>
                                 <option value="Contas Fixas">Contas Fixas</option>
                                 <option value="Educação">Educação</option>
+                                <option value="Lazer">Lazer</option>
+                                <option value="Moradia">Moradia</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Salário">Salário</option>
+                                <option value="Saúde">Saúde</option>
+
                             </select>
                         </div>
 
