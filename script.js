@@ -619,22 +619,23 @@ function renderizarResumo() {
     // Chaves no formato "AAAA-MM" ordenam corretamente como texto
     const chaves = Object.keys(resumo).sort();
 
-    // Cards do topo: sempre mostram o mês mais recente com lançamentos
-    // (não necessariamente o mês civil atual)
-    if (chaves.length > 0) {
-        const chaveRecente = chaves[chaves.length - 1];
-        const itemRecente = resumo[chaveRecente];
-        const saldoRecente = itemRecente.entradas - itemRecente.saidas;
+    // Cards do topo: sempre mostram o mês atual
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    const mesAtualIndice = hoje.getMonth(); // 0 a 11
+    const chaveMesAtual = anoAtual + "-" + String(mesAtualIndice + 1).padStart(2, "0");
 
-        document.getElementById("label-mes-atual").textContent =
-            "Entradas (" + meses[itemRecente.mes] + "/" + itemRecente.ano + ")";
-        document.getElementById("metrica-entradas-mes").textContent =
-            formatarMoeda(itemRecente.entradas);
-        document.getElementById("metrica-saidas-mes").textContent =
-            formatarMoeda(itemRecente.saidas);
-        document.getElementById("metrica-saldo-mes").textContent =
-            formatarMoeda(saldoRecente);
-    }
+    const itemMesAtual = resumo[chaveMesAtual] || { entradas: 0, saidas: 0 };
+    const saldoMesAtual = itemMesAtual.entradas - itemMesAtual.saidas;
+
+    document.getElementById("label-mes-atual").textContent =
+        "Entradas (" + meses[mesAtualIndice] + "/" + anoAtual + ")";
+    document.getElementById("metrica-entradas-mes").textContent =
+        formatarMoeda(itemMesAtual.entradas);
+    document.getElementById("metrica-saidas-mes").textContent =
+        formatarMoeda(itemMesAtual.saidas);
+    document.getElementById("metrica-saldo-mes").textContent =
+        formatarMoeda(saldoMesAtual);
 
     chaves.forEach(function (chave) {
         const item = resumo[chave];
@@ -703,7 +704,7 @@ function renderizarResumoAnual() {
    DASHBOARD (gráfico de gastos por categoria)
    ==================================================================== */
 let grafico = null; // referência ao gráfico atual, para poder destruí-lo
-                     // antes de desenhar um novo (Chart.js exige isso)
+// antes de desenhar um novo (Chart.js exige isso)
 
 // Preenche o <select> de mês/ano com base nos meses que têm lançamentos
 function preencherSeletorMeses() {
