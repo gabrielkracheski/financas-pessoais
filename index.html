@@ -3,10 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Controle Financeiro Pessoal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><rect x='3' y='7' width='18' height='13' rx='2' stroke='%232563eb' stroke-width='1.5'/><path d='M3 10H21' stroke='%232563eb' stroke-width='1.5'/><path d='M7 7V5.5C7 4.67157 7.67157 4 8.5 4H15.5C16.3284 4 17 4.67157 17 5.5V7' stroke='%232563eb' stroke-width='1.5'/><circle cx='16.5' cy='14.5' r='1.5' fill='%232563eb'/></svg>">
 </head>
 
 <body>
@@ -64,6 +67,8 @@
 
             <main class="conteudo">
 
+                <button id="botao-menu-mobile" class="botao-menu-mobile" type="button">☰</button>
+
                 <section id="secao-lancamentos" class="secao">
                     <h1>Lançamentos</h1>
 
@@ -85,6 +90,16 @@
                             <form id="form-lancamento">
                                 <label for="data">Data:</label>
                                 <input type="date" id="data" required>
+
+                                <div class="campo-checkbox">
+                                    <input type="checkbox" id="repetir-mensalmente">
+                                    <label for="repetir-mensalmente">Repetir mensalmente até:</label>
+                                </div>
+
+                                <div id="grupo-data-fim" style="display: none;">
+                                    <label for="data-fim-repeticao">Data final:</label>
+                                    <input type="date" id="data-fim-repeticao">
+                                </div>
 
                                 <label for="descricao">Descrição:</label>
                                 <input type="text" id="descricao" placeholder="Ex: Almoço" required>
@@ -176,23 +191,23 @@
 
                         <button id="botao-limpar-filtros" class="botao-secundario" type="button">Limpar filtros</button>
                     </div>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="selecionar-todos"></th>
-                                <th>Data</th>
-                                <th>Descrição</th>
-                                <th>Categoria</th>
-                                <th>Tipo</th>
-                                <th>Valor</th>
-                                <th>Forma</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-lancamentos"></tbody>
-                    </table>
-
+                    <div class="tabela-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selecionar-todos"></th>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Forma</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-lancamentos"></tbody>
+                        </table>
+                    </div>
                     <div class="rodape-tabela">
                         <span id="texto-total-lancamentos"></span>
 
@@ -238,32 +253,36 @@
                     </div>
 
                     <h2>Resumo Mensal</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Mês</th>
-                                <th>Entradas</th>
-                                <th>Saídas</th>
-                                <th>Saldo</th>
-                                <th>Situação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpo-resumo"></tbody>
-                    </table>
+                    <div class="tabela-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mês</th>
+                                    <th>Entradas</th>
+                                    <th>Saídas</th>
+                                    <th>Saldo</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-resumo"></tbody>
+                        </table>
+                    </div>
 
                     <h2>Resumo Anual</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ano</th>
-                                <th>Entradas</th>
-                                <th>Saídas</th>
-                                <th>Saldo</th>
-                                <th>Situação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpo-resumo-anual"></tbody>
-                    </table>
+                    <div class="tabela-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ano</th>
+                                    <th>Entradas</th>
+                                    <th>Saídas</th>
+                                    <th>Saldo</th>
+                                    <th>Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-resumo-anual"></tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <section id="secao-dashboard" class="secao">

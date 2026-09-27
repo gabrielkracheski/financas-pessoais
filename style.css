@@ -33,6 +33,10 @@ body {
     color: var(--cor-texto);
 }
 
+@media (max-width: 768px) {
+    /* regras que só valem quando a tela tem 768px ou menos */
+}
+
 /* ---------- Tela de login ---------- */
 
 #tela-login {
@@ -593,4 +597,59 @@ button[type="submit"] {
 .acoes-selecao .botao-secundario:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+.campo-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.campo-checkbox input {
+    width: auto;
+}
+
+.botao-menu-mobile {
+    display: none;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    color: var(--cor-texto);
+    font-size: 1.3rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .botao-menu-mobile {
+        display: inline-block;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar.aberta {
+        transform: translateX(0);
+    }
+
+    .conteudo {
+        padding: 20px;
+    }
+}
+
+.tabela-scroll {
+    overflow-x: auto;
+    margin-bottom: 24px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabela-scroll table {
+    margin-bottom: 0;
 }

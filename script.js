@@ -48,6 +48,13 @@ const textoTotalLancamentos = document.getElementById("texto-total-lancamentos")
 const textoSelecionados = document.getElementById("texto-selecionados");
 const botaoExcluirSelecionados = document.getElementById("botao-excluir-selecionados");
 
+const botaoMenuMobile = document.getElementById("botao-menu-mobile");
+const sidebar = document.querySelector(".sidebar");
+
+botaoMenuMobile.addEventListener("click", function () {
+    sidebar.classList.toggle("aberta");
+});
+
 let selecionados = new Set();
 let idsPaginaAtual = [];
 
@@ -90,6 +97,7 @@ function atualizarBarraSelecao() {
 botoesNav.forEach(function (botao) {
     botao.addEventListener("click", function () {
         mostrarSecao(botao.dataset.secao);
+        sidebar.classList.remove("aberta");
     });
 });
 
@@ -183,6 +191,10 @@ const botaoFecharModal = document.getElementById("botao-fechar-modal");
 const botaoImportar = document.getElementById("botao-importar");
 const inputArquivoPlanilha = document.getElementById("input-arquivo-planilha");
 
+const checkboxRepetirMensalmente = document.getElementById("repetir-mensalmente");
+const grupoDataFim = document.getElementById("grupo-data-fim");
+const inputDataFimRepeticao = document.getElementById("data-fim-repeticao");
+
 filtroDataInicio.addEventListener("change", function () {
     paginaAtual = 1;
     renderizar();
@@ -237,9 +249,10 @@ async function excluirLancamento(indice) {
     await deleteDoc(doc(db, "lancamentos", idDocumento));
 }
 
-function abrirModal(titulo) {
+function abrirModal(titulo, permitirRepeticao) {
     modalTitulo.textContent = titulo;
     modal.style.display = "flex";
+    checkboxRepetirMensalmente.parentElement.style.display = permitirRepeticao ? "flex" : "none";
 }
 
 function fecharModal() {
@@ -261,6 +274,10 @@ function converterDataParaISO(valorData) {
 
 botaoImportar.addEventListener("click", function () {
     inputArquivoPlanilha.click();
+});
+
+checkboxRepetirMensalmente.addEventListener("change", function () {
+    grupoDataFim.style.display = checkboxRepetirMensalmente.checked ? "block" : "none";
 });
 
 inputArquivoPlanilha.addEventListener("change", async function (evento) {
@@ -300,7 +317,7 @@ inputArquivoPlanilha.addEventListener("change", async function (evento) {
 });
 
 botaoNovoLancamento.addEventListener("click", function () {
-    abrirModal("Novo Lançamento");
+    abrirModal("Novo Lançamento", true);
 });
 
 botaoFecharModal.addEventListener("click", fecharModal);
@@ -323,7 +340,37 @@ function editarLancamento(indice) {
 
     indiceEmEdicao = indice;
     form.querySelector("button[type=submit]").textContent = "Salvar alteração";
-    abrirModal("Editar Lançamento");
+    abrirModal("Editar Lançamento", false);
+}
+
+function gerarDatasMensais(dataInicioISO, dataFimISO) {
+    const datas = [];
+    const [anoIni, mesIni, diaIni] = dataInicioISO.split("-").map(Number);
+    const dataFim = new Date(dataFimISO + "T00:00:00");
+
+    let ano = anoIni;
+    let mes = mesIni;
+
+    while (true) {
+        const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
+        const dia = Math.min(diaIni, ultimoDiaDoMes);
+        const dataAtual = new Date(ano, mes - 1, dia);
+
+        if (dataAtual > dataFim) break;
+
+        const anoStr = ano;
+        const mesStr = String(mes).padStart(2, "0");
+        const diaStr = String(dia).padStart(2, "0");
+        datas.push(anoStr + "-" + mesStr + "-" + diaStr);
+
+        mes++;
+        if (mes > 12) {
+            mes = 1;
+            ano++;
+        }
+    }
+
+    return datas;
 }
 
 function formatarData(dataISO) {
@@ -686,9 +733,8 @@ document.getElementById("mes-dashboard").addEventListener("change", renderizarDa
 form.addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
-    const lancamento = {
+    const dadosBase = {
         uid: auth.currentUser.uid,
-        data: document.getElementById("data").value,
         descricao: document.getElementById("descricao").value,
         categoria: document.getElementById("categoria").value,
         tipo: document.getElementById("tipo").value,
@@ -696,15 +742,32 @@ form.addEventListener("submit", async function (evento) {
         forma: document.getElementById("forma").value
     };
 
+    const dataInicio = document.getElementById("data").value;
+
     if (indiceEmEdicao === null) {
-        await addDoc(collection(db, "lancamentos"), lancamento);
+        if (checkboxRepetirMensalmente.checked && inputDataFimRepeticao.value) {
+            const datas = gerarDatasMensais(dataInicio, inputDataFimRepeticao.value);
+
+            if (datas.length === 0) {
+                alert("A data final precisa ser igual ou posterior à data inicial.");
+                return;
+            }
+
+            for (const data of datas) {
+                await addDoc(collection(db, "lancamentos"), { ...dadosBase, data: data });
+            }
+        } else {
+            await addDoc(collection(db, "lancamentos"), { ...dadosBase, data: dataInicio });
+        }
     } else {
         const idDocumento = lancamentos[indiceEmEdicao].id;
-        await updateDoc(doc(db, "lancamentos", idDocumento), lancamento);
+        await updateDoc(doc(db, "lancamentos", idDocumento), { ...dadosBase, data: dataInicio });
         indiceEmEdicao = null;
         form.querySelector("button[type=submit]").textContent = "Adicionar";
     }
 
+    checkboxRepetirMensalmente.checked = false;
+    grupoDataFim.style.display = "none";
     form.reset();
     fecharModal();
 });
