@@ -1,3 +1,9 @@
+/* ====================================================================
+   FIREBASE: inicialização
+   Importa só os módulos específicos que o site usa, direto do CDN do
+   Google (sem bundler). apiKey não é secreta — quem protege os dados
+   são as regras de segurança do Firestore (uid do usuário autenticado).
+   ==================================================================== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
     getAuth,
@@ -31,6 +37,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+/* ====================================================================
+   REFERÊNCIAS DE ELEMENTOS + TEMA + RESPONSIVIDADE
+   Nota: em JavaScript, const/let precisam ser declaradas ANTES de
+   serem usadas em qualquer addEventListener — por isso quase todas as
+   referências de elementos ficam agrupadas no topo do arquivo.
+   ==================================================================== */
 const telaLogin = document.getElementById("tela-login");
 const telaApp = document.getElementById("tela-app");
 const loginErro = document.getElementById("login-erro");
@@ -39,15 +51,19 @@ const botoesNav = document.querySelectorAll(".nav-item");
 const secoes = document.querySelectorAll(".secao");
 
 const botaoTema = document.getElementById("botao-tema");
+// Preferência de tema é só um dado de interface (não sensível como os
+// lançamentos), então localStorage (por dispositivo) é suficiente aqui
 const temaSalvo = localStorage.getItem("tema") || "claro";
 
 const textoUsuarioLogado = document.getElementById("texto-usuario-logado");
 
+// Seleção múltipla da tabela de Lançamentos (checkboxes + exclusão em massa)
 const selecionarTodos = document.getElementById("selecionar-todos");
 const textoTotalLancamentos = document.getElementById("texto-total-lancamentos");
 const textoSelecionados = document.getElementById("texto-selecionados");
 const botaoExcluirSelecionados = document.getElementById("botao-excluir-selecionados");
 
+// Menu retrátil no celular (ver media query no CSS)
 const botaoMenuMobile = document.getElementById("botao-menu-mobile");
 const sidebar = document.querySelector(".sidebar");
 
@@ -55,9 +71,14 @@ botaoMenuMobile.addEventListener("click", function () {
     sidebar.classList.toggle("aberta");
 });
 
+// Set: guarda os IDs dos lançamentos marcados. Fonte única de verdade
+// sobre "o que está selecionado" — sobrevive a re-renderizações e trocas
+// de página (diferente de guardar o estado no próprio checkbox do DOM)
 let selecionados = new Set();
+// IDs visíveis na página atual, usado só pelo checkbox "selecionar todos"
 let idsPaginaAtual = [];
 
+// Aplica o tema salvo assim que a página carrega (antes de qualquer clique)
 document.documentElement.setAttribute("data-tema", temaSalvo);
 
 botaoTema.addEventListener("click", function () {
@@ -68,6 +89,9 @@ botaoTema.addEventListener("click", function () {
     localStorage.setItem("tema", novoTema);
 });
 
+// Formata qualquer valor numérico como moeda brasileira (ex: 1500 -> "R$ 1.500,00")
+// Usada em todas as telas (Lançamentos, Resumos, Dashboard) para manter
+// a formatação consistente num único lugar
 function formatarMoeda(valor) {
     return "R$ " + valor.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
@@ -75,6 +99,8 @@ function formatarMoeda(valor) {
     });
 }
 
+// Controla qual <section> fica visível, com base no data-secao do botão
+// clicado no menu lateral (ver HTML: <button data-secao="lancamentos">)
 function mostrarSecao(nomeSecao) {
     secoes.forEach(function (secao) {
         secao.style.display = secao.id === "secao-" + nomeSecao ? "block" : "none";
@@ -85,6 +111,10 @@ function mostrarSecao(nomeSecao) {
     });
 }
 
+// Recalcula, a partir do Set "selecionados", o texto "X selecionado(s)",
+// se o botão de excluir em massa deve estar habilitado, e se o checkbox
+// "selecionar todos" deve aparecer marcado (só quando TODOS os itens da
+// página atual já estão no Set)
 function atualizarBarraSelecao() {
     const quantidade = selecionados.size;
     textoSelecionados.textContent = quantidade > 0 ? quantidade + " selecionado(s)" : "";
@@ -97,12 +127,15 @@ function atualizarBarraSelecao() {
 botoesNav.forEach(function (botao) {
     botao.addEventListener("click", function () {
         mostrarSecao(botao.dataset.secao);
-        sidebar.classList.remove("aberta");
+        sidebar.classList.remove("aberta"); // fecha o menu retrátil no celular ao navegar
     });
 });
 
-mostrarSecao("lancamentos");
+mostrarSecao("lancamentos"); // seção exibida por padrão ao carregar a página
 
+/* ====================================================================
+   AUTENTICAÇÃO (login / criar conta / sair)
+   ==================================================================== */
 document.getElementById("botao-entrar").addEventListener("click", function () {
     const email = document.getElementById("login-email").value;
     const senha = document.getElementById("login-senha").value;
@@ -127,8 +160,14 @@ document.getElementById("botao-sair").addEventListener("click", function () {
     signOut(auth);
 });
 
+/* ====================================================================
+   ESTADO DOS LANÇAMENTOS + SINCRONIZAÇÃO EM TEMPO REAL
+   "lancamentos" é preenchido exclusivamente pelo onSnapshot abaixo —
+   nunca editado diretamente; toda alteração (criar/editar/excluir)
+   passa pelo Firestore, que por sua vez dispara o onSnapshot de novo.
+   ==================================================================== */
 let lancamentos = [];
-let pararDeEscutar = null;
+let pararDeEscutar = null; // referência para "desligar" a escuta ao deslogar
 
 onAuthStateChanged(auth, function (usuario) {
     if (usuario) {
@@ -136,11 +175,14 @@ onAuthStateChanged(auth, function (usuario) {
         telaApp.style.display = "block";
         textoUsuarioLogado.textContent = usuario.email;
 
+        // Só busca (e escuta) os documentos que pertencem a este usuário
         const consulta = query(
             collection(db, "lancamentos"),
             where("uid", "==", usuario.uid)
         );
 
+        // onSnapshot = "escuta ao vivo": roda de novo automaticamente
+        // toda vez que os dados mudam no Firestore, em qualquer dispositivo
         pararDeEscutar = onSnapshot(consulta, function (snapshot) {
             lancamentos = snapshot.docs.map(function (documento) {
                 return { id: documento.id, ...documento.data() };
@@ -158,18 +200,21 @@ onAuthStateChanged(auth, function (usuario) {
         telaApp.style.display = "none";
 
         if (pararDeEscutar) {
-            pararDeEscutar();
+            pararDeEscutar(); // evita continuar escutando dados de uma sessão encerrada
         }
         lancamentos = [];
     }
 });
 
+/* ====================================================================
+   REFERÊNCIAS: FORMULÁRIO, PAGINAÇÃO, FILTROS, MODAL, IMPORTAÇÃO
+   ==================================================================== */
 const form = document.getElementById("form-lancamento");
 const lista = document.getElementById("lista-lancamentos");
 
 let paginaAtual = 1;
-let itensPorPagina = 10;
-let indiceEmEdicao = null;
+let itensPorPagina = 10; // let, não const: muda via seletor de itens por página
+let indiceEmEdicao = null; // null = criando um novo; número = editando esse índice
 
 const botaoPaginaAnterior = document.getElementById("botao-pagina-anterior");
 const botaoPaginaProxima = document.getElementById("botao-pagina-proxima");
@@ -195,6 +240,9 @@ const checkboxRepetirMensalmente = document.getElementById("repetir-mensalmente"
 const grupoDataFim = document.getElementById("grupo-data-fim");
 const inputDataFimRepeticao = document.getElementById("data-fim-repeticao");
 
+/* ---------- Filtros: cada campo re-renderiza a lista ao mudar,
+   sempre voltando para a página 1 (evita ficar "preso" numa página
+   que deixou de existir depois de um filtro mais restritivo) ---------- */
 filtroDataInicio.addEventListener("change", function () {
     paginaAtual = 1;
     renderizar();
@@ -215,6 +263,8 @@ filtroForma.addEventListener("change", function () {
     paginaAtual = 1;
     renderizar();
 });
+
+/* ---------- Paginação ---------- */
 botaoPaginaAnterior.addEventListener("click", function () {
     paginaAtual--;
     renderizar();
@@ -241,14 +291,20 @@ botaoLimparFiltros.addEventListener("click", function () {
     renderizar();
 });
 
+/* ---------- Exclusão individual ---------- */
 async function excluirLancamento(indice) {
     const confirmar = confirm("Tem certeza que deseja excluir este lançamento?");
     if (!confirmar) return;
 
     const idDocumento = lancamentos[indice].id;
     await deleteDoc(doc(db, "lancamentos", idDocumento));
+    // Não precisa chamar renderizar() aqui: o onSnapshot detecta a
+    // exclusão no Firestore e atualiza a tela sozinho
 }
 
+/* ---------- Modal: reaproveitado tanto para criar quanto editar ---------- */
+// permitirRepeticao: só true ao abrir para um lançamento NOVO — não faz
+// sentido "repetir mensalmente" ao editar um lançamento já existente
 function abrirModal(titulo, permitirRepeticao) {
     modalTitulo.textContent = titulo;
     modal.style.display = "flex";
@@ -262,6 +318,10 @@ function fecharModal() {
     form.querySelector("button[type=submit]").textContent = "Adicionar";
 }
 
+/* ---------- Importação de planilha ---------- */
+// O Excel entrega células de data já como objeto Date (por causa da opção
+// { cellDates: true } no XLSX.read) — aqui convertemos para o formato
+// AAAA-MM-DD que o resto do site usa internamente
 function converterDataParaISO(valorData) {
     if (valorData instanceof Date) {
         const ano = valorData.getFullYear();
@@ -269,9 +329,11 @@ function converterDataParaISO(valorData) {
         const dia = String(valorData.getDate()).padStart(2, "0");
         return ano + "-" + mes + "-" + dia;
     }
-    return valorData;
+    return valorData; // já veio como texto: devolve sem alterar
 }
 
+// O <input type="file"> real fica escondido (display: none no HTML);
+// clicamos nele programaticamente ao clicar no botão "visível"
 botaoImportar.addEventListener("click", function () {
     inputArquivoPlanilha.click();
 });
@@ -287,6 +349,7 @@ inputArquivoPlanilha.addEventListener("change", async function (evento) {
     const dadosArquivo = await arquivo.arrayBuffer();
     const planilha = XLSX.read(dadosArquivo, { cellDates: true });
 
+    // O nome "Lancamentos" precisa bater exatamente com o nome da aba no arquivo
     const abaLancamentos = planilha.Sheets["Lancamentos"];
     const linhas = XLSX.utils.sheet_to_json(abaLancamentos);
 
@@ -295,6 +358,8 @@ inputArquivoPlanilha.addEventListener("change", async function (evento) {
 
     for (const linha of linhas) {
 
+        // Pula linhas em branco/incompletas (evita gravar documentos
+        // com campos undefined, que o Firestore rejeita e travaria o loop)
         if (!linha["Data"] || !linha["Descrição"]) {
             continue;
         }
@@ -309,11 +374,13 @@ inputArquivoPlanilha.addEventListener("change", async function (evento) {
             forma: linha["Forma de Pagamento"]
         };
 
+        // Gravação uma linha de cada vez (await dentro do loop) — mais
+        // lento que disparar tudo de uma vez, mas mais fácil de depurar
         await addDoc(collection(db, "lancamentos"), lancamento);
     }
 
     alert("Importação concluída!");
-    inputArquivoPlanilha.value = "";
+    inputArquivoPlanilha.value = ""; // permite escolher o mesmo arquivo de novo depois
 });
 
 botaoNovoLancamento.addEventListener("click", function () {
@@ -322,12 +389,15 @@ botaoNovoLancamento.addEventListener("click", function () {
 
 botaoFecharModal.addEventListener("click", fecharModal);
 
+// Fecha o modal ao clicar na área escurecida fora do card (mas não ao
+// clicar dentro do formulário) — checagem via evento.target === modal
 modal.addEventListener("click", function (evento) {
     if (evento.target === modal) {
         fecharModal();
     }
 });
 
+/* ---------- Editar: preenche o formulário com os dados do item clicado ---------- */
 function editarLancamento(indice) {
     const item = lancamentos[indice];
 
@@ -343,6 +413,8 @@ function editarLancamento(indice) {
     abrirModal("Editar Lançamento", false);
 }
 
+/* ---------- Lançamento recorrente (repetir mensalmente) ----------
+   Gera um array de datas ISO (AAAA-MM-DD), uma por mês, do início ao fim */
 function gerarDatasMensais(dataInicioISO, dataFimISO) {
     const datas = [];
     const [anoIni, mesIni, diaIni] = dataInicioISO.split("-").map(Number);
@@ -352,11 +424,15 @@ function gerarDatasMensais(dataInicioISO, dataFimISO) {
     let mes = mesIni;
 
     while (true) {
+        // new Date(ano, mes, 0) = "dia 0 do próximo mês" = truque para
+        // pegar o último dia do mês ATUAL, sem tabela manual de dias por mês
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
+        // Protege contra dia inválido (ex: começar dia 31 e cair num
+        // mês de 28/29/30 dias) — "encolhe" para o último dia disponível
         const dia = Math.min(diaIni, ultimoDiaDoMes);
         const dataAtual = new Date(ano, mes - 1, dia);
 
-        if (dataAtual > dataFim) break;
+        if (dataAtual > dataFim) break; // condição de parada do loop
 
         const anoStr = ano;
         const mesStr = String(mes).padStart(2, "0");
@@ -364,7 +440,7 @@ function gerarDatasMensais(dataInicioISO, dataFimISO) {
         datas.push(anoStr + "-" + mesStr + "-" + diaStr);
 
         mes++;
-        if (mes > 12) {
+        if (mes > 12) { // vira o ano quando passa de dezembro
             mes = 1;
             ano++;
         }
@@ -373,11 +449,19 @@ function gerarDatasMensais(dataInicioISO, dataFimISO) {
     return datas;
 }
 
+// Só para EXIBIÇÃO na tabela (DD-MM-AAAA); o dado internamente continua
+// em AAAA-MM-DD, formato necessário para os filtros/comparações de data
 function formatarData(dataISO) {
     const [ano, mes, dia] = dataISO.split("-");
     return dia + "-" + mes + "-" + ano;
 }
 
+/* ====================================================================
+   RENDERIZAÇÃO: TABELA DE LANÇAMENTOS
+   Fluxo: filtra -> ordena -> pagina -> desenha as linhas -> atualiza
+   contadores. Chamada sempre que "lancamentos" muda (via onSnapshot)
+   ou quando filtro/página/seleção mudam.
+   ==================================================================== */
 function renderizar() {
     lista.innerHTML = "";
 
@@ -387,6 +471,8 @@ function renderizar() {
     const tipoEscolhido = filtroTipo.value;
     const formaEscolhida = filtroForma.value;
 
+    // Datas em formato AAAA-MM-DD podem ser comparadas como texto
+    // (>=, <=) e o resultado bate com a ordem cronológica real
     const lancamentosFiltrados = lancamentos.filter(function (item) {
         const passaDataInicio = dataInicio === "" || item.data >= dataInicio;
         const passaDataFim = dataFim === "" || item.data <= dataFim;
@@ -395,11 +481,12 @@ function renderizar() {
         const passaForma = formaEscolhida === "" || item.forma === formaEscolhida;
         return passaDataInicio && passaDataFim && passaCategoria && passaTipo && passaForma;
     }).sort(function (a, b) {
-        return b.data.localeCompare(a.data);
+        return b.data.localeCompare(a.data); // mais recente primeiro
     });
 
     const totalPaginas = Math.max(1, Math.ceil(lancamentosFiltrados.length / itensPorPagina));
 
+    // Evita ficar numa página que deixou de existir (ex: filtro reduziu o total)
     if (paginaAtual > totalPaginas) {
         paginaAtual = totalPaginas;
     }
@@ -415,6 +502,8 @@ function renderizar() {
     lancamentosDaPagina.forEach(function (item) {
         const linha = document.createElement("tr");
 
+        // Checkbox de seleção: nasce marcado/desmarcado consultando o
+        // Set "selecionados" — ele é sempre a fonte da verdade, não o DOM
         const celulaSelecionar = document.createElement("td");
         const checkboxLinha = document.createElement("input");
         checkboxLinha.type = "checkbox";
@@ -451,6 +540,8 @@ function renderizar() {
         const botaoEditar = document.createElement("button");
         botaoEditar.textContent = "Editar";
         botaoEditar.addEventListener("click", function () {
+            // Usa indexOf no array ORIGINAL (não no filtrado) — essencial
+            // para editar/excluir o item certo mesmo com filtro ativo
             const indiceReal = lancamentos.indexOf(item);
             editarLancamento(indiceReal);
         });
@@ -484,6 +575,11 @@ function renderizar() {
 
 }
 
+/* ====================================================================
+   RESUMO MENSAL / ANUAL
+   Agrupam os lançamentos por chave (ano-mês, ou só ano) somando
+   entradas/saídas — mesmo padrão de "acumulador" nas duas funções.
+   ==================================================================== */
 const meses = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
@@ -499,7 +595,7 @@ function calcularResumo() {
         if (!resumoPorMes[chave]) {
             resumoPorMes[chave] = {
                 ano: ano,
-                mes: parseInt(mes) - 1,
+                mes: parseInt(mes) - 1, // -1: índice do array "meses" começa em 0
                 entradas: 0,
                 saidas: 0
             };
@@ -520,8 +616,11 @@ function renderizarResumo() {
     const corpo = document.getElementById("corpo-resumo");
     corpo.innerHTML = "";
 
+    // Chaves no formato "AAAA-MM" ordenam corretamente como texto
     const chaves = Object.keys(resumo).sort();
 
+    // Cards do topo: sempre mostram o mês mais recente com lançamentos
+    // (não necessariamente o mês civil atual)
     if (chaves.length > 0) {
         const chaveRecente = chaves[chaves.length - 1];
         const itemRecente = resumo[chaveRecente];
@@ -600,14 +699,19 @@ function renderizarResumoAnual() {
     });
 }
 
-let grafico = null;
+/* ====================================================================
+   DASHBOARD (gráfico de gastos por categoria)
+   ==================================================================== */
+let grafico = null; // referência ao gráfico atual, para poder destruí-lo
+                     // antes de desenhar um novo (Chart.js exige isso)
 
+// Preenche o <select> de mês/ano com base nos meses que têm lançamentos
 function preencherSeletorMeses() {
     const seletor = document.getElementById("mes-dashboard");
     const resumo = calcularResumo();
     const chaves = Object.keys(resumo).sort();
 
-    const chaveSelecionada = seletor.value;
+    const chaveSelecionada = seletor.value; // preserva a seleção atual, se possível
     seletor.innerHTML = "";
 
     chaves.forEach(function (chave) {
@@ -623,6 +727,7 @@ function preencherSeletorMeses() {
     }
 }
 
+// Filtra por ano+mês exatos e só considera Saídas (o Dashboard não mostra Entradas)
 function calcularGastosPorCategoria(chaveMes) {
     const [ano, mes] = chaveMes.split("-");
     const porCategoria = {};
@@ -640,10 +745,11 @@ function calcularGastosPorCategoria(chaveMes) {
 function renderizarDashboard() {
     const seletor = document.getElementById("mes-dashboard");
     const chaveMes = seletor.value;
-    if (!chaveMes) return;
+    if (!chaveMes) return; // nenhum mês disponível ainda (sem lançamentos)
 
     const dados = calcularGastosPorCategoria(chaveMes);
 
+    // Ordena da maior para a menor categoria de gasto
     const categoriasOrdenadas = Object.keys(dados).sort(function (a, b) {
         return dados[b] - dados[a];
     });
@@ -662,7 +768,7 @@ function renderizarDashboard() {
     const ctx = document.getElementById("grafico-categorias");
 
     if (grafico) {
-        grafico.destroy();
+        grafico.destroy(); // evita erro do Chart.js ao redesenhar no mesmo canvas
     }
 
     grafico = new Chart(ctx, {
@@ -677,13 +783,13 @@ function renderizarDashboard() {
             }]
         },
         options: {
-            indexAxis: "y",
+            indexAxis: "y", // barras horizontais (melhor para nomes de categoria longos)
             plugins: {
-                legend: { display: false },
+                legend: { display: false }, // só 1 série de dados: legenda seria redundante
                 tooltip: {
                     callbacks: {
                         label: function (contexto) {
-                            return contexto.parsed.x.toFixed(2);
+                            return formatarMoeda(contexto.parsed.x);
                         }
                     }
                 }
@@ -694,7 +800,7 @@ function renderizarDashboard() {
                     grid: { color: "rgba(148, 163, 184, 0.2)" },
                     ticks: {
                         callback: function (valor) {
-                            return valor;
+                            return formatarMoeda(valor);
                         }
                     }
                 },
@@ -706,7 +812,11 @@ function renderizarDashboard() {
     });
 }
 
+/* ====================================================================
+   SELEÇÃO EM MASSA: "selecionar todos" + exclusão
+   ==================================================================== */
 selecionarTodos.addEventListener("change", function () {
+    // Marca/desmarca só os IDs da PÁGINA ATUAL (não todos os filtrados)
     idsPaginaAtual.forEach(function (id) {
         if (selecionarTodos.checked) {
             selecionados.add(id);
@@ -721,18 +831,26 @@ botaoExcluirSelecionados.addEventListener("click", async function () {
     const confirmar = confirm("Excluir " + selecionados.size + " lançamento(s) selecionado(s)? Esta ação não pode ser desfeita.");
     if (!confirmar) return;
 
+    // for...of funciona em qualquer iterável, incluindo Set (que não
+    // tem .forEach com a mesma assinatura simples dos arrays)
     for (const id of selecionados) {
         await deleteDoc(doc(db, "lancamentos", id));
     }
 
     selecionados.clear();
+    // Não precisa renderizar() manualmente: o onSnapshot detecta as
+    // exclusões e atualiza a tela sozinho
 });
 
 document.getElementById("mes-dashboard").addEventListener("change", renderizarDashboard);
 
+/* ====================================================================
+   ENVIO DO FORMULÁRIO (criar, editar, ou criar em série/repetição)
+   ==================================================================== */
 form.addEventListener("submit", async function (evento) {
-    evento.preventDefault();
+    evento.preventDefault(); // evita o comportamento padrão de recarregar a página
 
+    // Dados comuns a todos os casos (novo, edição, ou cada cópia de uma repetição)
     const dadosBase = {
         uid: auth.currentUser.uid,
         descricao: document.getElementById("descricao").value,
@@ -745,21 +863,25 @@ form.addEventListener("submit", async function (evento) {
     const dataInicio = document.getElementById("data").value;
 
     if (indiceEmEdicao === null) {
+        // Criando um lançamento novo (ou vários, se repetição estiver marcada)
         if (checkboxRepetirMensalmente.checked && inputDataFimRepeticao.value) {
             const datas = gerarDatasMensais(dataInicio, inputDataFimRepeticao.value);
 
             if (datas.length === 0) {
                 alert("A data final precisa ser igual ou posterior à data inicial.");
-                return;
+                return; // interrompe sem fechar o modal, para o usuário corrigir
             }
 
             for (const data of datas) {
+                // spread (...dadosBase) copia os campos comuns; "data" é
+                // sobrescrita para cada mês gerado
                 await addDoc(collection(db, "lancamentos"), { ...dadosBase, data: data });
             }
         } else {
             await addDoc(collection(db, "lancamentos"), { ...dadosBase, data: dataInicio });
         }
     } else {
+        // Editando um lançamento existente: atualiza o documento pelo ID salvo
         const idDocumento = lancamentos[indiceEmEdicao].id;
         await updateDoc(doc(db, "lancamentos", idDocumento), { ...dadosBase, data: dataInicio });
         indiceEmEdicao = null;
@@ -772,6 +894,13 @@ form.addEventListener("submit", async function (evento) {
     fecharModal();
 });
 
+/* ====================================================================
+   CHAMADAS INICIAIS
+   Garantem que a tela já mostre algo mesmo antes do primeiro onSnapshot
+   responder (ex: "Página 1 de 1", tabelas vazias formatadas) — o
+   onSnapshot, quando chegar, chama todas essas funções de novo com os
+   dados reais.
+   ==================================================================== */
 renderizar();
 renderizarResumo();
 renderizarResumoAnual();

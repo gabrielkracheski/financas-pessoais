@@ -1,3 +1,10 @@
+/* ====================================================================
+   VARIÁVEIS DE TEMA
+   Toda cor do site é definida aqui como variável CSS. Trocar de tema
+   (ver botão de tema no script.js) só troca esses valores — o resto do
+   CSS nunca referencia uma cor fixa, sempre var(--nome-da-variavel).
+   ==================================================================== */
+
 :root {
     --cor-fundo: #f4f6f8;
     --cor-texto: #1e293b;
@@ -10,6 +17,8 @@
     --cor-sombra: rgba(0, 0, 0, 0.08);
 }
 
+/* Redefine as mesmas variáveis quando <html data-tema="escuro">
+   (atributo controlado via JS, persistido no localStorage) */
 [data-tema="escuro"] {
     --cor-fundo: #0f172a;
     --cor-texto: #e2e8f0;
@@ -22,6 +31,8 @@
     --cor-sombra: rgba(0, 0, 0, 0.4);
 }
 
+/* Faz padding/border entrarem no cálculo de largura/altura de todo
+   elemento, em vez de serem somados a ela (evita estouro de layout) */
 * {
     box-sizing: border-box;
 }
@@ -33,11 +44,9 @@ body {
     color: var(--cor-texto);
 }
 
-@media (max-width: 768px) {
-    /* regras que só valem quando a tela tem 768px ou menos */
-}
-
-/* ---------- Tela de login ---------- */
+/* ====================================================================
+   TELA DE LOGIN
+   ==================================================================== */
 
 #tela-login {
     max-width: 320px;
@@ -47,13 +56,13 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
+}
 
-    .icone-login {
-        width: 48px;
-        height: 48px;
-        color: var(--cor-destaque);
-        margin-bottom: 8px;
-    }
+.icone-login {
+    width: 48px;
+    height: 48px;
+    color: var(--cor-destaque);
+    margin-bottom: 8px;
 }
 
 #tela-login input {
@@ -65,6 +74,9 @@ body {
     border-radius: 6px;
 }
 
+/* Botões reutilizáveis em qualquer parte do site (não só no login):
+   .botao-primario = ação principal (preenchido);
+   .botao-secundario = ação alternativa/discreta (contorno) */
 .botao-primario,
 .botao-secundario {
     appearance: none;
@@ -100,6 +112,30 @@ body {
     background-color: #eff6ff;
 }
 
+/* ====================================================================
+   LAYOUT PRINCIPAL (sidebar + conteúdo)
+   ==================================================================== */
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background-color: var(--cor-sidebar);
+    color: white;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar h2 {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+}
 
 .nav-lista {
     display: flex;
@@ -107,6 +143,29 @@ body {
     gap: 8px;
 }
 
+.sidebar button {
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.sidebar button:hover {
+    background-color: var(--cor-sidebar-hover);
+}
+
+/* Aplicada via JS (classList.toggle) no botão da seção atualmente aberta */
+.sidebar button.ativo {
+    background-color: var(--cor-destaque);
+    font-weight: bold;
+}
+
+/* Empurra tudo dentro dela para o fim da sidebar, aproveitando o
+   espaço vazio (truque clássico de margin-top: auto num flex column) */
 .sidebar-rodape {
     margin-top: auto;
     display: flex;
@@ -114,6 +173,17 @@ body {
     gap: 8px;
     border-top: 1px solid var(--cor-sidebar-hover);
     padding-top: 12px;
+}
+
+.usuario-logado {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: white;
+    opacity: 0.7;
+    /* corta e-mails longos com "..." em vez de estourar a largura da sidebar */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .botao-icone {
@@ -137,6 +207,8 @@ body {
     height: 20px;
 }
 
+/* Alternância dos ícones sol/lua do botão de tema: por padrão (tema
+   claro) mostra a lua; no tema escuro, inverte qual ícone fica visível */
 .icone-sol {
     display: none;
 }
@@ -149,55 +221,14 @@ body {
     display: block;
 }
 
-/* ---------- Layout principal ---------- */
-
-.layout {
-    display: flex;
-    min-height: 100vh;
-}
-
-.sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    background-color: var(--cor-sidebar);
-    color: white;
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.sidebar h2 {
-    margin: 0 0 16px 0;
-    font-size: 1.2rem;
-}
-
-.sidebar button {
-    background: none;
-    border: none;
-    color: white;
-    text-align: left;
-    padding: 10px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
-}
-
-.sidebar button:hover {
-    background-color: var(--cor-sidebar-hover);
-}
-
-.sidebar button.ativo {
-    background-color: var(--cor-destaque);
-    font-weight: bold;
-}
-
 .conteudo {
     flex-grow: 1;
     padding: 32px;
 }
 
-/* ---------- Elementos gerais ---------- */
+/* ====================================================================
+   ELEMENTOS GERAIS (títulos, tabelas)
+   ==================================================================== */
 
 h1 {
     margin-top: 0;
@@ -225,6 +256,37 @@ th {
     background-color: var(--cor-borda);
 }
 
+/* Container de rolagem horizontal para tabelas largas em telas
+   pequenas (ver também a media query de responsividade, no fim) */
+.tabela-scroll {
+    overflow-x: auto;
+    margin-bottom: 24px;
+    -webkit-overflow-scrolling: touch;
+    /* rolagem mais suave por toque no iOS */
+}
+
+.tabela-scroll table {
+    margin-bottom: 0;
+    /* evita margem duplicada (o container já tem a dele) */
+}
+
+button {
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    align-self: flex-end;
+    background-color: var(--cor-destaque);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+}
+
+/* ====================================================================
+   FORMULÁRIO (usado dentro do modal de lançamento)
+   ==================================================================== */
+
 form {
     background: var(--cor-card);
     padding: 20px;
@@ -244,6 +306,8 @@ form label {
     gap: 4px;
 }
 
+/* Aplica o mesmo visual de campo tanto no formulário principal quanto
+   na barra de filtros — mantém consistência entre os dois contextos */
 form input,
 form select,
 .barra-filtros input,
@@ -255,41 +319,22 @@ form select,
     color: var(--cor-texto);
 }
 
-button {
-    cursor: pointer;
-}
-
-button[type="submit"] {
-    align-self: flex-end;
-    background-color: var(--cor-destaque);
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-}
-
-#lista-lancamentos {
-    list-style: none;
-    padding: 0;
-}
-
-#lista-lancamentos td:last-child {
+/* Checkbox de "repetir mensalmente": label ao lado, não em cima
+   (sobrescreve o comportamento padrão de "form label") */
+.campo-checkbox {
     display: flex;
+    align-items: center;
     gap: 8px;
 }
 
-.card-grafico {
-    background: var(--cor-card);
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px var(--cor-sombra);
-    max-width: 600px;
+.campo-checkbox input {
+    width: auto;
+    /* sem isso, herdaria 100% de largura do input geral do form */
 }
 
-.card-grafico h2 {
-    margin-top: 0;
-    color: var(--cor-texto);
-}
+/* ====================================================================
+   BARRA DE FILTROS (reaproveitada em Lançamentos e Dashboard)
+   ==================================================================== */
 
 .barra-filtros {
     background: var(--cor-card);
@@ -303,33 +348,44 @@ button[type="submit"] {
     flex-wrap: wrap;
 }
 
-.filtro-dashboard label {
+/* Container padrão de "label + campo" usado nos filtros e na paginação */
+.campo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.campo label {
     font-size: 0.85rem;
     color: var(--cor-texto);
-    font-weight: 600;
 }
 
-.filtro-dashboard select {
-    padding: 8px 12px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: var(--cor-fundo);
-    color: var(--cor-texto);
-}
-
-.card-grafico {
-    background: var(--cor-card);
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px var(--cor-sombra);
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.card-grafico h2 {
+/* O botão de contorno herda width:100% da regra genérica — aqui
+   sobrescrevemos para ele caber no tamanho do conteúdo, alinhado
+   com a altura dos outros campos da barra */
+.barra-filtros .botao-secundario {
+    width: auto;
+    padding: 10px 18px;
+    font-weight: normal;
+    align-self: center;
     margin-top: 0;
-    color: var(--cor-texto);
 }
+
+/* Rótulo discreto (ex: "FILTROS") acima de um grupo de campos */
+.rotulo-secao {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cor-texto);
+    opacity: 0.6;
+    margin: 0 0 8px 0;
+}
+
+/* ====================================================================
+   CARDS (métricas do Dashboard/Resumos e o card do gráfico)
+   ==================================================================== */
 
 .cards-resumo {
     display: flex;
@@ -362,32 +418,29 @@ button[type="submit"] {
     color: var(--cor-destaque);
 }
 
-#lista-lancamentos button {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    border: 1px solid var(--cor-borda);
-    background: var(--cor-fundo);
+.card-grafico {
+    background: var(--cor-card);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px var(--cor-sombra);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.card-grafico h2 {
+    margin-top: 0;
     color: var(--cor-texto);
 }
 
-#lista-lancamentos button:hover {
-    background: var(--cor-borda);
-}
-
-#lista-lancamentos button:last-child {
-    border-color: #ef4444;
-    color: #ef4444;
-}
-
-#lista-lancamentos button:last-child:hover {
-    background: #fee2e2;
-}
+/* ====================================================================
+   BADGES DE SITUAÇÃO (Positivo/Negativo/Neutro nas tabelas de Resumo)
+   ==================================================================== */
 
 .badge {
     display: inline-block;
     padding: 4px 10px;
     border-radius: 999px;
+    /* valor bem alto = formato de "pílula" */
     font-size: 0.8rem;
     font-weight: 600;
 }
@@ -407,25 +460,161 @@ button[type="submit"] {
     color: #475569;
 }
 
-.barra-filtros .botao-secundario {
-    width: auto;
-    padding: 10px 18px;
-    font-weight: normal;
-    align-self: center;
-    margin-top: 0;
+/* ====================================================================
+   TABELA DE LANÇAMENTOS: ações (Editar/Excluir), seleção e rodapé
+   ==================================================================== */
+
+.acoes-lancamentos {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
-.campo {
+/* Reaproveita .botao-primario/.botao-secundario, mas cabendo no
+   tamanho do texto em vez de esticar 100% (ver definição original) */
+.botao-compacto {
+    width: auto;
+    margin-bottom: 0;
+}
+
+#lista-lancamentos td:last-child {
     display: flex;
-    flex-direction: row;
+    gap: 8px;
+}
+
+#lista-lancamentos button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid var(--cor-borda);
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+#lista-lancamentos button:hover {
+    background: var(--cor-borda);
+}
+
+/* :last-child pega o botão "Excluir" (sempre o 2º/último botão de cada
+   linha) e destaca em vermelho — convenção visual para ações destrutivas */
+#lista-lancamentos button:last-child {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+#lista-lancamentos button:last-child:hover {
+    background: #fee2e2;
+}
+
+.rodape-tabela {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rodape-tabela span {
+    font-size: 0.85rem;
+    color: var(--cor-texto);
+    opacity: 0.7;
+}
+
+.acoes-selecao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.acoes-selecao .botao-secundario:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Tooltip circular ("?") ao lado do botão Importar planilha */
+.grupo-importar {
+    display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.campo label {
+.icone-ajuda {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cor-borda);
+    color: var(--cor-texto);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: help;
+    margin-top: 9px;
+}
+
+/* ====================================================================
+   PAGINAÇÃO
+   ==================================================================== */
+
+.paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.paginacao button {
+    padding: 8px 16px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: var(--cor-card);
+    color: var(--cor-texto);
+}
+
+.paginacao button:hover:not(:disabled) {
+    background: var(--cor-borda);
+}
+
+/* Estado desabilitado (paginaAtual === 1 ou === totalPaginas, ver JS) */
+.paginacao button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.paginacao span {
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+}
+
+.paginacao select {
+    padding: 8px 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+/* Sobrescreve .campo para ficar lado a lado (padrão dos filtros),
+   com uma margem extra separando da paginação */
+.campo-itens-pagina {
+    margin-left: 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.campo-itens-pagina label {
     font-size: 0.85rem;
     color: var(--cor-texto);
 }
+
+/* ====================================================================
+   MODAL (Novo/Editar Lançamento)
+   ==================================================================== */
 
 .modal-overlay {
     position: fixed;
@@ -450,6 +639,9 @@ button[type="submit"] {
     overflow-y: auto;
 }
 
+/* Dentro do modal, o form empilha os campos em coluna (mais adequado
+   a uma janela estreita) e perde a "casca" própria (sombra/padding),
+   já que o .modal-conteudo já fornece isso */
 .modal-conteudo form {
     flex-direction: column;
     align-items: stretch;
@@ -479,138 +671,13 @@ button[type="submit"] {
     color: var(--cor-texto);
 }
 
-.botao-compacto {
-    width: auto;
-    margin-bottom: 0;
-}
-
-.rotulo-secao {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--cor-texto);
-    opacity: 0.6;
-    margin: 0 0 8px 0;
-}
-
-.paginacao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 16px;
-}
-
-.paginacao button {
-    padding: 8px 16px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: var(--cor-card);
-    color: var(--cor-texto);
-}
-
-.paginacao button:hover:not(:disabled) {
-    background: var(--cor-borda);
-}
-
-.paginacao button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.paginacao span {
-    font-size: 0.9rem;
-    color: var(--cor-texto);
-}
-
-.paginacao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-}
-
-.campo-itens-pagina {
-    margin-left: 16px;
-}
-
-.paginacao select {
-    padding: 8px 12px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: var(--cor-fundo);
-    color: var(--cor-texto);
-}
-
-.campo-itens-pagina {
-    margin-left: 16px;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-}
-
-.campo-itens-pagina label {
-    font-size: 0.85rem;
-    color: var(--cor-texto);
-}
-
-.usuario-logado {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    color: white;
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.acoes-lancamentos {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.rodape-tabela {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 12px;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.rodape-tabela span {
-    font-size: 0.85rem;
-    color: var(--cor-texto);
-    opacity: 0.7;
-}
-
-.acoes-selecao {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.acoes-selecao .botao-secundario:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.campo-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.campo-checkbox input {
-    width: auto;
-}
+/* ====================================================================
+   RESPONSIVIDADE (celular / tablet)
+   ==================================================================== */
 
 .botao-menu-mobile {
     display: none;
+    /* só aparece dentro da media query abaixo */
     background: var(--cor-card);
     border: 1px solid var(--cor-borda);
     color: var(--cor-texto);
@@ -625,6 +692,9 @@ button[type="submit"] {
         display: inline-block;
     }
 
+    /* Sidebar sai do fluxo normal e fica escondida fora da tela à
+       esquerda; a classe "aberta" (via JS) a traz de volta com uma
+       transição suave */
     .sidebar {
         position: fixed;
         top: 0;
@@ -642,14 +712,4 @@ button[type="submit"] {
     .conteudo {
         padding: 20px;
     }
-}
-
-.tabela-scroll {
-    overflow-x: auto;
-    margin-bottom: 24px;
-    -webkit-overflow-scrolling: touch;
-}
-
-.tabela-scroll table {
-    margin-bottom: 0;
 }
