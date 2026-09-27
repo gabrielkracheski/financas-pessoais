@@ -43,6 +43,14 @@ const temaSalvo = localStorage.getItem("tema") || "claro";
 
 const textoUsuarioLogado = document.getElementById("texto-usuario-logado");
 
+const selecionarTodos = document.getElementById("selecionar-todos");
+const textoTotalLancamentos = document.getElementById("texto-total-lancamentos");
+const textoSelecionados = document.getElementById("texto-selecionados");
+const botaoExcluirSelecionados = document.getElementById("botao-excluir-selecionados");
+
+let selecionados = new Set();
+let idsPaginaAtual = [];
+
 document.documentElement.setAttribute("data-tema", temaSalvo);
 
 botaoTema.addEventListener("click", function () {
@@ -68,6 +76,15 @@ function mostrarSecao(nomeSecao) {
     botoesNav.forEach(function (botao) {
         botao.classList.toggle("ativo", botao.dataset.secao === nomeSecao);
     });
+}
+
+function atualizarBarraSelecao() {
+    const quantidade = selecionados.size;
+    textoSelecionados.textContent = quantidade > 0 ? quantidade + " selecionado(s)" : "";
+    botaoExcluirSelecionados.disabled = quantidade === 0;
+
+    selecionarTodos.checked = idsPaginaAtual.length > 0 &&
+        idsPaginaAtual.every(function (id) { return selecionados.has(id); });
 }
 
 botoesNav.forEach(function (botao) {
@@ -351,6 +368,20 @@ function renderizar() {
     lancamentosDaPagina.forEach(function (item) {
         const linha = document.createElement("tr");
 
+        const celulaSelecionar = document.createElement("td");
+        const checkboxLinha = document.createElement("input");
+        checkboxLinha.type = "checkbox";
+        checkboxLinha.checked = selecionados.has(item.id);
+        checkboxLinha.addEventListener("change", function () {
+            if (checkboxLinha.checked) {
+                selecionados.add(item.id);
+            } else {
+                selecionados.delete(item.id);
+            }
+            atualizarBarraSelecao();
+        });
+        celulaSelecionar.appendChild(checkboxLinha);
+
         const celulaData = document.createElement("td");
         celulaData.textContent = formatarData(item.data);
 
@@ -364,7 +395,7 @@ function renderizar() {
         celulaTipo.textContent = item.tipo;
 
         const celulaValor = document.createElement("td");
-        celulaValor.textContent =  formatarMoeda(item.valor);
+        celulaValor.textContent = formatarMoeda(item.valor);
         const celulaForma = document.createElement("td");
         celulaForma.textContent = item.forma;
 
@@ -387,6 +418,7 @@ function renderizar() {
         celulaAcoes.appendChild(botaoEditar);
         celulaAcoes.appendChild(botaoExcluir);
 
+        linha.appendChild(celulaSelecionar);
         linha.appendChild(celulaData);
         linha.appendChild(celulaDescricao);
         linha.appendChild(celulaCategoria);
@@ -397,6 +429,12 @@ function renderizar() {
 
         lista.appendChild(linha);
     });
+
+    atualizarBarraSelecao();
+
+    idsPaginaAtual = lancamentosDaPagina.map(function (item) { return item.id; });
+    textoTotalLancamentos.textContent = "Total: " + lancamentosFiltrados.length + " lançamento(s)";
+
 }
 
 const meses = [
@@ -620,6 +658,28 @@ function renderizarDashboard() {
         }
     });
 }
+
+selecionarTodos.addEventListener("change", function () {
+    idsPaginaAtual.forEach(function (id) {
+        if (selecionarTodos.checked) {
+            selecionados.add(id);
+        } else {
+            selecionados.delete(id);
+        }
+    });
+    renderizar();
+});
+
+botaoExcluirSelecionados.addEventListener("click", async function () {
+    const confirmar = confirm("Excluir " + selecionados.size + " lançamento(s) selecionado(s)? Esta ação não pode ser desfeita.");
+    if (!confirmar) return;
+
+    for (const id of selecionados) {
+        await deleteDoc(doc(db, "lancamentos", id));
+    }
+
+    selecionados.clear();
+});
 
 document.getElementById("mes-dashboard").addEventListener("change", renderizarDashboard);
 

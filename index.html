@@ -180,6 +180,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="selecionar-todos"></th>
                                 <th>Data</th>
                                 <th>Descrição</th>
                                 <th>Categoria</th>
@@ -191,6 +192,16 @@
                         </thead>
                         <tbody id="lista-lancamentos"></tbody>
                     </table>
+
+                    <div class="rodape-tabela">
+                        <span id="texto-total-lancamentos"></span>
+
+                        <div class="acoes-selecao">
+                            <span id="texto-selecionados"></span>
+                            <button id="botao-excluir-selecionados" class="botao-secundario botao-compacto"
+                                type="button" disabled>Excluir selecionados</button>
+                        </div>
+                    </div>
 
                     <div class="paginacao">
                         <button id="botao-pagina-anterior" type="button">Anterior</button>

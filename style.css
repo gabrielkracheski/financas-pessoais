@@ -568,3 +568,29 @@ button[type="submit"] {
     gap: 12px;
     margin-bottom: 24px;
 }
+
+.rodape-tabela {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rodape-tabela span {
+    font-size: 0.85rem;
+    color: var(--cor-texto);
+    opacity: 0.7;
+}
+
+.acoes-selecao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.acoes-selecao .botao-secundario:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
