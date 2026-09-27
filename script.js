@@ -348,7 +348,7 @@ function renderizar() {
         const passaForma = formaEscolhida === "" || item.forma === formaEscolhida;
         return passaDataInicio && passaDataFim && passaCategoria && passaTipo && passaForma;
     }).sort(function (a, b) {
-        return a.data.localeCompare(b.data);
+        return b.data.localeCompare(a.data);
     });
 
     const totalPaginas = Math.max(1, Math.ceil(lancamentosFiltrados.length / itensPorPagina));
