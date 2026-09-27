@@ -53,6 +53,13 @@ botaoTema.addEventListener("click", function () {
     localStorage.setItem("tema", novoTema);
 });
 
+function formatarMoeda(valor) {
+    return "R$ " + valor.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 function mostrarSecao(nomeSecao) {
     secoes.forEach(function (secao) {
         secao.style.display = secao.id === "secao-" + nomeSecao ? "block" : "none";
@@ -253,6 +260,11 @@ inputArquivoPlanilha.addEventListener("change", async function (evento) {
     if (!confirmar) return;
 
     for (const linha of linhas) {
+
+        if (!linha["Data"] || !linha["Descrição"]) {
+            continue;
+        }
+
         const lancamento = {
             uid: auth.currentUser.uid,
             data: converterDataParaISO(linha["Data"]),
@@ -352,8 +364,7 @@ function renderizar() {
         celulaTipo.textContent = item.tipo;
 
         const celulaValor = document.createElement("td");
-        celulaValor.textContent = "R$ " + item.valor.toFixed(2).replace(".", ",");
-
+        celulaValor.textContent =  formatarMoeda(item.valor);
         const celulaForma = document.createElement("td");
         celulaForma.textContent = item.forma;
 
@@ -434,11 +445,11 @@ function renderizarResumo() {
         document.getElementById("label-mes-atual").textContent =
             "Entradas (" + meses[itemRecente.mes] + "/" + itemRecente.ano + ")";
         document.getElementById("metrica-entradas-mes").textContent =
-            "R$ " + itemRecente.entradas.toFixed(2).replace(".", ",");
+            formatarMoeda(itemRecente.entradas);
         document.getElementById("metrica-saidas-mes").textContent =
-            "R$ " + itemRecente.saidas.toFixed(2).replace(".", ",");
+            formatarMoeda(itemRecente.saidas);
         document.getElementById("metrica-saldo-mes").textContent =
-            "R$ " + saldoRecente.toFixed(2).replace(".", ",");
+            formatarMoeda(saldoRecente);
     }
 
     chaves.forEach(function (chave) {
@@ -451,9 +462,9 @@ function renderizarResumo() {
         const linha = document.createElement("tr");
         linha.innerHTML =
             "<td>" + meses[item.mes] + "/" + item.ano + "</td>" +
-            "<td>R$ " + item.entradas.toFixed(2) + "</td>" +
-            "<td>R$ " + item.saidas.toFixed(2) + "</td>" +
-            "<td>R$ " + saldo.toFixed(2) + "</td>" +
+            "<td>" + formatarMoeda(item.entradas) + "</td>" +
+            "<td>" + formatarMoeda(item.saidas) + "</td>" +
+            "<td>" + formatarMoeda(saldo) + "</td>" +
             "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
@@ -496,9 +507,9 @@ function renderizarResumoAnual() {
         const linha = document.createElement("tr");
         linha.innerHTML =
             "<td>" + ano + "</td>" +
-            "<td>R$ " + item.entradas.toFixed(2) + "</td>" +
-            "<td>R$ " + item.saidas.toFixed(2) + "</td>" +
-            "<td>R$ " + saldo.toFixed(2) + "</td>" +
+            "<td>" + formatarMoeda(item.entradas) + "</td>" +
+            "<td>" + formatarMoeda(item.saidas) + "</td>" +
+            "<td>" + formatarMoeda(saldo) + "</td>" +
             "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
@@ -559,7 +570,7 @@ function renderizarDashboard() {
     const topCategoria = categorias.length > 0 ? categorias[0] : "-";
 
     document.getElementById("metrica-total").textContent =
-        "R$ " + total.toFixed(2).replace(".", ",");
+        formatarMoeda(total);
     document.getElementById("metrica-top-categoria").textContent = topCategoria;
     document.getElementById("metrica-num-categorias").textContent = categorias.length;
 
@@ -587,7 +598,7 @@ function renderizarDashboard() {
                 tooltip: {
                     callbacks: {
                         label: function (contexto) {
-                            return "R$ " + contexto.parsed.x.toFixed(2);
+                            return contexto.parsed.x.toFixed(2);
                         }
                     }
                 }
@@ -598,7 +609,7 @@ function renderizarDashboard() {
                     grid: { color: "rgba(148, 163, 184, 0.2)" },
                     ticks: {
                         callback: function (valor) {
-                            return "R$ " + valor;
+                            return valor;
                         }
                     }
                 },
