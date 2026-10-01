@@ -146,6 +146,12 @@ document.getElementById("botao-entrar").addEventListener("click", function () {
         });
 });
 
+document.getElementById("login-senha").addEventListener("keydown", function (evento) {
+    if (evento.key === "Enter") {
+        document.getElementById("botao-entrar").click();
+    }
+});
+
 document.getElementById("botao-criar-conta").addEventListener("click", function () {
     const email = document.getElementById("login-email").value;
     const senha = document.getElementById("login-senha").value;
