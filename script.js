@@ -63,14 +63,6 @@ const textoTotalLancamentos = document.getElementById("texto-total-lancamentos")
 const textoSelecionados = document.getElementById("texto-selecionados");
 const botaoExcluirSelecionados = document.getElementById("botao-excluir-selecionados");
 
-// Menu retrátil no celular (ver media query no CSS)
-const botaoMenuMobile = document.getElementById("botao-menu-mobile");
-const sidebar = document.querySelector(".sidebar");
-
-botaoMenuMobile.addEventListener("click", function () {
-    sidebar.classList.toggle("aberta");
-});
-
 // Set: guarda os IDs dos lançamentos marcados. Fonte única de verdade
 // sobre "o que está selecionado" — sobrevive a re-renderizações e trocas
 // de página (diferente de guardar o estado no próprio checkbox do DOM)
@@ -127,7 +119,6 @@ function atualizarBarraSelecao() {
 botoesNav.forEach(function (botao) {
     botao.addEventListener("click", function () {
         mostrarSecao(botao.dataset.secao);
-        sidebar.classList.remove("aberta"); // fecha o menu retrátil no celular ao navegar
     });
 });
 
@@ -623,7 +614,9 @@ function renderizarResumo() {
     corpo.innerHTML = "";
 
     // Chaves no formato "AAAA-MM" ordenam corretamente como texto
-    const chaves = Object.keys(resumo).sort();
+    const chaves = Object.keys(resumo).sort(function (a, b) {
+        return b.localeCompare(a); // mais recente primeiro
+    });
 
     // Cards do topo: sempre mostram o mês atual
     const hoje = new Date();
@@ -686,7 +679,9 @@ function renderizarResumoAnual() {
     const corpo = document.getElementById("corpo-resumo-anual");
     corpo.innerHTML = "";
 
-    const anos = Object.keys(resumo).sort();
+    const anos = Object.keys(resumo).sort(function (a, b) {
+        return b.localeCompare(a); // mais recente primeiro
+    });
 
     anos.forEach(function (ano) {
         const item = resumo[ano];
@@ -712,26 +707,37 @@ function renderizarResumoAnual() {
 let grafico = null; // referência ao gráfico atual, para poder destruí-lo
 // antes de desenhar um novo (Chart.js exige isso)
 
-// Preenche o <select> de mês/ano com base nos meses que têm lançamentos
+// Preenche o <select> de mês/ano com os meses que têm lançamentos, mais
+// o mês atual (mesmo que ainda sem lançamentos). Abre sempre no mês atual,
+// mas mantém a escolha do usuário se ele já tiver trocado de mês.
 function preencherSeletorMeses() {
     const seletor = document.getElementById("mes-dashboard");
     const resumo = calcularResumo();
-    const chaves = Object.keys(resumo).sort();
 
-    const chaveSelecionada = seletor.value; // preserva a seleção atual, se possível
+    const hoje = new Date();
+    const chaveMesAtual = hoje.getFullYear() + "-" + String(hoje.getMonth() + 1).padStart(2, "0");
+
+    // Object.keys devolve um array novo, então o push abaixo não altera o "resumo"
+    const chaves = Object.keys(resumo);
+    if (!chaves.includes(chaveMesAtual)) {
+        chaves.push(chaveMesAtual);
+    }
+    chaves.sort();
+
+    const chaveSelecionada = seletor.value; // escolha atual do usuário, se houver
     seletor.innerHTML = "";
 
     chaves.forEach(function (chave) {
-        const item = resumo[chave];
+        // O texto da opção sai da própria chave ("2026-10"), sem depender
+        // de o mês existir no resumo (o mês atual pode estar vazio)
+        const [ano, mes] = chave.split("-");
         const opcao = document.createElement("option");
         opcao.value = chave;
-        opcao.textContent = meses[item.mes] + "/" + item.ano;
+        opcao.textContent = meses[parseInt(mes) - 1] + "/" + ano;
         seletor.appendChild(opcao);
     });
 
-    if (chaves.includes(chaveSelecionada)) {
-        seletor.value = chaveSelecionada;
-    }
+    seletor.value = chaves.includes(chaveSelecionada) ? chaveSelecionada : chaveMesAtual;
 }
 
 // Filtra por ano+mês exatos e só considera Saídas (o Dashboard não mostra Entradas)

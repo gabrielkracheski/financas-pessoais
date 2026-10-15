@@ -1,82 +1,157 @@
 /* ====================================================================
-   VARIÁVEIS DE TEMA
-   Toda cor do site é definida aqui como variável CSS. Trocar de tema
-   (ver botão de tema no script.js) só troca esses valores — o resto do
-   CSS nunca referencia uma cor fixa, sempre var(--nome-da-variavel).
+   1. TOKENS (variáveis de tema)
+   Toda cor, fonte e medida repetida do site nasce aqui. Trocar de tema
+   (botão sol/lua) só redefine estes valores: o resto do CSS sempre usa
+   var(--nome) e nunca uma cor escrita à mão.
    ==================================================================== */
 
 :root {
-    --cor-fundo: #f4f6f8;
-    --cor-texto: #1e293b;
+    color-scheme: light;
+    /* faz calendário, setas de select e rolagem nativos seguirem o tema */
+
+    /* Superfícies */
+    --cor-fundo: #f2f4f6;
+    /* "papel": fundo da página e dos campos */
     --cor-card: #ffffff;
-    --cor-borda: #e2e8f0;
-    --cor-sidebar: #1e293b;
-    --cor-sidebar-hover: #334155;
-    --cor-destaque: #2563eb;
-    --cor-destaque-hover: #1d4ed8;
-    --cor-sombra: rgba(0, 0, 0, 0.08);
+    /* painéis, tabelas, modal */
+    --cor-borda: #dde2e8;
+    /* linhas finas que separam informação */
+    --cor-borda-forte: #b9c2cd;
+    /* contorno de botões e campos */
+
+    /* Texto */
+    --cor-texto: #1b2733;
+    /* "tinta" */
+    --cor-texto-suave: #5d6b7a;
+    /* rótulos e informação secundária */
+
+    /* Ação principal e acento */
+    --cor-destaque: #1f3a5f;
+    /* azul-tinta: botões principais */
+    --cor-destaque-hover: #162c49;
+    --cor-destaque-suave: #edf1f6;
+    /* hover de linhas e botões neutros */
+    --cor-acento: #9a6b1f;
+    /* latão: foco do teclado e marcações pontuais */
+
+    /* Semânticas: dinheiro que entra / dinheiro que sai */
+    --cor-positivo: #1f7a4d;
+    --cor-positivo-suave: #e3f3ea;
+    --cor-negativo: #b3382c;
+    --cor-negativo-suave: #f8e6e3;
+
+    /* Menu lateral: escuro nos dois temas */
+    --cor-sidebar: #111c29;
+    --cor-sidebar-hover: #1b2a3b;
+    --cor-acento-sidebar: #d9a950;
+
+    --cor-sombra: rgba(17, 28, 41, 0.28);
+    /* usada só no que "flutua": login e modal */
+
+    /* Tipografia */
+    --fonte-titulo: "Source Serif 4", Georgia, serif;
+    --fonte-texto: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
 }
 
-/* Redefine as mesmas variáveis quando <html data-tema="escuro">
-   (atributo controlado via JS, persistido no localStorage) */
+/* Mesmas variáveis, valores do tema escuro (atributo data-tema no <html>,
+   controlado pelo JS e salvo no localStorage) */
 [data-tema="escuro"] {
-    --cor-fundo: #0f172a;
-    --cor-texto: #e2e8f0;
-    --cor-card: #1e293b;
-    --cor-borda: #334155;
-    --cor-sidebar: #020617;
-    --cor-sidebar-hover: #1e293b;
-    --cor-destaque: #3b82f6;
-    --cor-destaque-hover: #60a5fa;
-    --cor-sombra: rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+
+    --cor-fundo: #0e1620;
+    --cor-card: #16212d;
+    --cor-borda: #263444;
+    --cor-borda-forte: #3b4b5e;
+
+    --cor-texto: #e3e9ef;
+    --cor-texto-suave: #93a1b1;
+
+    --cor-destaque: #3d6fae;
+    --cor-destaque-hover: #5183c4;
+    --cor-destaque-suave: #1c2a3a;
+    --cor-acento: #d9a950;
+
+    --cor-positivo: #5fcf9a;
+    --cor-positivo-suave: #15382a;
+    --cor-negativo: #f08c80;
+    --cor-negativo-suave: #3f2321;
+
+    --cor-sidebar: #0a111a;
+    --cor-sidebar-hover: #142030;
+
+    --cor-sombra: rgba(0, 0, 0, 0.55);
 }
 
-/* Faz padding/border entrarem no cálculo de largura/altura de todo
-   elemento, em vez de serem somados a ela (evita estouro de layout) */
+/* ====================================================================
+   2. BASE (reset, texto, títulos, foco do teclado)
+   ==================================================================== */
+
+/* padding e borda passam a contar dentro da largura declarada */
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: var(--fonte-texto);
+    line-height: 1.5;
     background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    /* algarismos de largura igual: os valores se alinham em coluna */
+    font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2 {
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--cor-texto);
 }
 
+h1 {
+    margin: 0 0 20px;
+    font-size: 1.75rem;
+}
+
+h2 {
+    margin: 28px 0 12px;
+    font-size: 1.15rem;
+}
+
+/* Título logo abaixo da faixa de métricas não precisa de margem extra */
+.cards-resumo+h2 {
+    margin-top: 0;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Foco visível para quem navega pelo teclado (Tab) */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--cor-acento);
+    outline-offset: 2px;
+}
+
+.sidebar button:focus-visible {
+    outline-color: var(--cor-acento-sidebar);
+}
+
 /* ====================================================================
-   TELA DE LOGIN
+   3. BOTÕES
+   .botao-primario = ação principal (preenchido)
+   .botao-secundario = ação alternativa (contorno neutro)
+   Os dois têm borda de 1px para ficarem com a mesma altura lado a lado.
    ==================================================================== */
 
-#tela-login {
-    max-width: 320px;
-    margin: 80px auto;
-    padding: 24px;
-    background: var(--cor-card);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.icone-login {
-    width: 48px;
-    height: 48px;
-    color: var(--cor-destaque);
-    margin-bottom: 8px;
-}
-
-#tela-login input {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-}
-
-/* Botões reutilizáveis em qualquer parte do site (não só no login):
-   .botao-primario = ação principal (preenchido);
-   .botao-secundario = ação alternativa/discreta (contorno) */
 .botao-primario,
 .botao-secundario {
     appearance: none;
@@ -84,36 +159,118 @@ body {
     display: block;
     width: 100%;
     margin-top: 10px;
-    padding: 12px;
+    padding: 10px 16px;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 600;
-    cursor: pointer;
     transition: background-color 0.15s ease;
 }
 
 .botao-primario {
-    background-color: var(--cor-destaque);
-    color: white;
-    border: none;
+    background: var(--cor-destaque);
+    color: #ffffff;
+    border: 1px solid var(--cor-destaque);
 }
 
 .botao-primario:hover {
-    background-color: var(--cor-destaque-hover);
+    background: var(--cor-destaque-hover);
+    border-color: var(--cor-destaque-hover);
 }
 
 .botao-secundario {
-    background-color: white;
-    color: var(--cor-destaque);
-    border: 1.5px solid var(--cor-destaque);
+    background: transparent;
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda-forte);
 }
 
-.botao-secundario:hover {
-    background-color: #eff6ff;
+.botao-secundario:hover:not(:disabled) {
+    background: var(--cor-destaque-suave);
+}
+
+/* Versão que cabe no tamanho do texto (em vez de esticar 100%) */
+.botao-compacto {
+    width: auto;
+    margin-top: 0;
+}
+
+/* Botão de enviar do formulário (dentro do modal) */
+button[type="submit"] {
+    align-self: flex-end;
+    margin-top: 18px;
+    padding: 10px 20px;
+    background: var(--cor-destaque);
+    color: #ffffff;
+    border: 1px solid var(--cor-destaque);
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+button[type="submit"]:hover {
+    background: var(--cor-destaque-hover);
 }
 
 /* ====================================================================
-   LAYOUT PRINCIPAL (sidebar + conteúdo)
+   4. CAMPOS (um único visual para login, formulário, filtros e paginação)
+   ==================================================================== */
+
+input,
+select {
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    border: 1px solid var(--cor-borda-forte);
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+
+/* Declarado depois de "input" de propósito: precisa sobrescrever o padding */
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    accent-color: var(--cor-destaque);
+}
+
+/* ====================================================================
+   5. TELA DE LOGIN
+   ==================================================================== */
+
+#tela-login {
+    max-width: 340px;
+    margin: 12vh auto 0;
+    padding: 32px 28px 28px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-top: 3px solid var(--cor-acento);
+    /* "aba" de latão no topo */
+    border-radius: 14px;
+    box-shadow: 0 18px 48px var(--cor-sombra);
+    text-align: center;
+}
+
+#tela-login h1 {
+    margin-bottom: 18px;
+    font-size: 1.6rem;
+}
+
+.icone-login {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 8px;
+    color: var(--cor-acento);
+}
+
+#tela-login input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px 12px;
+}
+
+/* ====================================================================
+   6. LAYOUT PRINCIPAL: MENU LATERAL + CONTEÚDO
    ==================================================================== */
 
 .layout {
@@ -122,84 +279,89 @@ body {
 }
 
 .sidebar {
-    width: 220px;
+    width: 232px;
     flex-shrink: 0;
-    background-color: var(--cor-sidebar);
-    color: white;
-    padding: 24px 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 24px 14px;
+    background: var(--cor-sidebar);
+    color: #e8edf2;
 }
 
-.sidebar h2 {
-    margin: 0 0 16px 0;
-    font-size: 1.2rem;
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px 8px;
+    font-family: var(--fonte-titulo);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.marca-icone {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    color: var(--cor-acento-sidebar);
 }
 
 .nav-lista {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .sidebar button {
     background: none;
     border: none;
-    color: white;
+    color: rgba(232, 237, 242, 0.72);
     text-align: left;
-    padding: 10px 12px;
+    padding: 10px 14px;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    font-weight: 500;
 }
 
 .sidebar button:hover {
-    background-color: var(--cor-sidebar-hover);
+    background: var(--cor-sidebar-hover);
+    color: #ffffff;
 }
 
-/* Aplicada via JS (classList.toggle) no botão da seção atualmente aberta */
+/* Classe aplicada pelo JS no botão da seção aberta. A barra de latão à
+   esquerda é só uma sombra interna (inset), sem elemento extra no HTML */
 .sidebar button.ativo {
-    background-color: var(--cor-destaque);
-    font-weight: bold;
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--cor-acento-sidebar);
 }
 
-/* Empurra tudo dentro dela para o fim da sidebar, aproveitando o
-   espaço vazio (truque clássico de margin-top: auto num flex column) */
+/* Empurra o rodapé para o fim da sidebar (margin-top: auto num flex column) */
 .sidebar-rodape {
     margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    border-top: 1px solid var(--cor-sidebar-hover);
+    gap: 6px;
     padding-top: 12px;
+    border-top: 1px solid var(--cor-sidebar-hover);
 }
 
 .usuario-logado {
-    padding: 8px 12px;
+    padding: 6px 14px;
     font-size: 0.8rem;
-    color: white;
-    opacity: 0.7;
-    /* corta e-mails longos com "..." em vez de estourar a largura da sidebar */
+    color: rgba(232, 237, 242, 0.6);
+    /* e-mails longos terminam em "..." em vez de estourar a sidebar */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .botao-icone {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 12px;
-    border-radius: 6px;
-}
-
-.botao-icone:hover {
-    background-color: var(--cor-sidebar-hover);
 }
 
 .botao-icone svg {
@@ -207,8 +369,7 @@ body {
     height: 20px;
 }
 
-/* Alternância dos ícones sol/lua do botão de tema: por padrão (tema
-   claro) mostra a lua; no tema escuro, inverte qual ícone fica visível */
+/* Tema claro mostra a lua; tema escuro troca para o sol */
 .icone-sol {
     display: none;
 }
@@ -221,134 +382,215 @@ body {
     display: block;
 }
 
+/* min-width: 0 deixa o conteúdo encolher em vez de ser empurrado por
+   tabelas largas (itens flex não encolhem abaixo do próprio conteúdo) */
 .conteudo {
     flex-grow: 1;
-    padding: 32px;
+    min-width: 0;
+    padding: 36px 40px;
+}
+
+/* Limita a largura de leitura em telas grandes */
+.secao {
+    max-width: 1120px;
 }
 
 /* ====================================================================
-   ELEMENTOS GERAIS (títulos, tabelas)
+   7. PAINÉIS: FAIXA DE MÉTRICAS E CARD DO GRÁFICO
+   Estrutura em vez de enfeite: bordas finas separam a informação e só o
+   que flutua (login e modal) recebe sombra.
    ==================================================================== */
 
-h1 {
-    margin-top: 0;
+/* Uma faixa única dividida em células. O fundo do container tem a cor
+   da linha e o gap de 1px deixa o fundo aparecer entre as células,
+   formando divisórias mesmo quando elas quebram de linha */
+.cards-resumo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    margin-bottom: 24px;
+    background: var(--cor-borda);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-metrica {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 22px;
+    background: var(--cor-card);
+}
+
+.card-metrica-label {
+    font-size: 0.82rem;
+    color: var(--cor-texto-suave);
+}
+
+.card-metrica-valor {
+    font-family: var(--fonte-titulo);
+    font-size: 1.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
     color: var(--cor-texto);
+}
+
+.card-grafico {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 22px 24px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+}
+
+.card-grafico h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+}
+
+/* ====================================================================
+   8. TABELAS (estilo extrato), VALORES E BADGES
+   ==================================================================== */
+
+/* O painel (borda + cantos) fica no container; a tabela dentro é lisa.
+   overflow-x: auto = só a tabela rola para o lado em telas estreitas */
+.tabela-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 12px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 24px;
-    background: var(--cor-card);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    font-size: 0.92rem;
 }
 
 th,
 td {
-    padding: 10px 14px;
+    padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid var(--cor-borda);
 }
 
 th {
-    background-color: var(--cor-borda);
+    background: var(--cor-fundo);
+    border-bottom-color: var(--cor-borda-forte);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
 }
 
-/* Container de rolagem horizontal para tabelas largas em telas
-   pequenas (ver também a media query de responsividade, no fim) */
-.tabela-scroll {
-    overflow-x: auto;
-    margin-bottom: 24px;
-    -webkit-overflow-scrolling: touch;
-    /* rolagem mais suave por toque no iOS */
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.tabela-scroll table {
-    margin-bottom: 0;
-    /* evita margem duplicada (o container já tem a dele) */
+tbody tr:hover {
+    background: var(--cor-destaque-suave);
 }
 
-button {
-    cursor: pointer;
+/* Colunas de dinheiro: alinhadas à direita */
+.num {
+    text-align: right;
 }
 
-button[type="submit"] {
-    align-self: flex-end;
-    background-color: var(--cor-destaque);
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
+td.num {
+    font-weight: 500;
+}
+
+/* Declaradas depois de .card-metrica-valor para sobrescrever a cor dele */
+.valor-positivo {
+    color: var(--cor-positivo);
+}
+
+.valor-negativo {
+    color: var(--cor-negativo);
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    /* raio enorme = formato de pílula */
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.badge-positivo {
+    background: var(--cor-positivo-suave);
+    color: var(--cor-positivo);
+}
+
+.badge-negativo {
+    background: var(--cor-negativo-suave);
+    color: var(--cor-negativo);
+}
+
+.badge-neutro {
+    background: var(--cor-borda);
+    color: var(--cor-texto-suave);
 }
 
 /* ====================================================================
-   FORMULÁRIO (usado dentro do modal de lançamento)
+   9. TELA DE LANÇAMENTOS: ações, filtros, linhas, rodapé e paginação
    ==================================================================== */
 
-form {
-    background: var(--cor-card);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+.acoes-lancamentos {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
     gap: 12px;
     margin-bottom: 24px;
 }
 
-form label {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.85rem;
-    gap: 4px;
-}
-
-/* Aplica o mesmo visual de campo tanto no formulário principal quanto
-   na barra de filtros — mantém consistência entre os dois contextos */
-form input,
-form select,
-.barra-filtros input,
-.barra-filtros select {
-    padding: 8px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: var(--cor-fundo);
-    color: var(--cor-texto);
-}
-
-/* Checkbox de "repetir mensalmente": label ao lado, não em cima
-   (sobrescreve o comportamento padrão de "form label") */
-.campo-checkbox {
+.grupo-importar {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.campo-checkbox input {
-    width: auto;
-    /* sem isso, herdaria 100% de largura do input geral do form */
-}
-
-/* ====================================================================
-   BARRA DE FILTROS (reaproveitada em Lançamentos e Dashboard)
-   ==================================================================== */
-
-.barra-filtros {
-    background: var(--cor-card);
-    padding: 16px 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px var(--cor-sombra);
-    margin-bottom: 24px;
-    display: flex;
+/* Bolinha "?" com dica ao passar o mouse (atributo title no HTML) */
+.icone-ajuda {
+    display: inline-flex;
     align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--cor-borda-forte);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    cursor: help;
 }
 
-/* Container padrão de "label + campo" usado nos filtros e na paginação */
+.rotulo-secao {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+}
+
+/* Reaproveitada em Lançamentos e Dashboard */
+.barra-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 18px;
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+}
+
+/* "rótulo + campo" lado a lado */
 .campo {
     display: flex;
     flex-direction: row;
@@ -358,167 +600,58 @@ form select,
 
 .campo label {
     font-size: 0.85rem;
-    color: var(--cor-texto);
+    font-weight: 500;
+    color: var(--cor-texto-suave);
 }
 
-/* O botão de contorno herda width:100% da regra genérica — aqui
-   sobrescrevemos para ele caber no tamanho do conteúdo, alinhado
-   com a altura dos outros campos da barra */
 .barra-filtros .botao-secundario {
     width: auto;
-    padding: 10px 18px;
-    font-weight: normal;
-    align-self: center;
     margin-top: 0;
 }
 
-/* Rótulo discreto (ex: "FILTROS") acima de um grupo de campos */
-.rotulo-secao {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--cor-texto);
-    opacity: 0.6;
-    margin: 0 0 8px 0;
-}
-
-/* ====================================================================
-   CARDS (métricas do Dashboard/Resumos e o card do gráfico)
-   ==================================================================== */
-
-.cards-resumo {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.card-metrica {
-    background: var(--cor-card);
-    padding: 16px 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px var(--cor-sombra);
-    flex: 1;
-    min-width: 180px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.card-metrica-label {
-    font-size: 0.8rem;
-    color: var(--cor-texto);
-    opacity: 0.7;
-}
-
-.card-metrica-valor {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--cor-destaque);
-}
-
-.card-grafico {
-    background: var(--cor-card);
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px var(--cor-sombra);
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.card-grafico h2 {
-    margin-top: 0;
-    color: var(--cor-texto);
-}
-
-/* ====================================================================
-   BADGES DE SITUAÇÃO (Positivo/Negativo/Neutro nas tabelas de Resumo)
-   ==================================================================== */
-
-.badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    /* valor bem alto = formato de "pílula" */
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.badge-positivo {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.badge-negativo {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-.badge-neutro {
-    background-color: #f1f5f9;
-    color: #475569;
-}
-
-/* ====================================================================
-   TABELA DE LANÇAMENTOS: ações (Editar/Excluir), seleção e rodapé
-   ==================================================================== */
-
-.acoes-lancamentos {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-/* Reaproveita .botao-primario/.botao-secundario, mas cabendo no
-   tamanho do texto em vez de esticar 100% (ver definição original) */
-.botao-compacto {
-    width: auto;
-    margin-bottom: 0;
-}
-
+/* Botões Editar / Excluir de cada linha. Excluir é sempre o último
+   botão da célula (:last-child) e fica em vermelho: ação destrutiva */
 #lista-lancamentos td:last-child {
-    display: flex;
-    gap: 8px;
+    white-space: nowrap;
+}
+
+#lista-lancamentos td:last-child button+button {
+    margin-left: 6px;
 }
 
 #lista-lancamentos button {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    border: 1px solid var(--cor-borda);
-    background: var(--cor-fundo);
+    padding: 5px 11px;
+    background: transparent;
     color: var(--cor-texto);
+    border: 1px solid var(--cor-borda-forte);
+    border-radius: 6px;
+    font-size: 0.82rem;
 }
 
 #lista-lancamentos button:hover {
-    background: var(--cor-borda);
+    background: var(--cor-fundo);
 }
 
-/* :last-child pega o botão "Excluir" (sempre o 2º/último botão de cada
-   linha) e destaca em vermelho — convenção visual para ações destrutivas */
 #lista-lancamentos button:last-child {
-    border-color: #ef4444;
-    color: #ef4444;
+    color: var(--cor-negativo);
+    border-color: var(--cor-negativo);
 }
 
 #lista-lancamentos button:last-child:hover {
-    background: #fee2e2;
+    background: var(--cor-negativo-suave);
 }
 
 .rodape-tabela {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    margin-top: 12px;
-    flex-wrap: wrap;
     gap: 12px;
 }
 
 .rodape-tabela span {
     font-size: 0.85rem;
-    color: var(--cor-texto);
-    opacity: 0.7;
+    color: var(--cor-texto-suave);
 }
 
 .acoes-selecao {
@@ -529,92 +662,91 @@ form select,
 
 .acoes-selecao .botao-secundario:disabled {
     opacity: 0.4;
-    cursor: not-allowed;
 }
-
-/* Tooltip circular ("?") ao lado do botão Importar planilha */
-.grupo-importar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.icone-ajuda {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--cor-borda);
-    color: var(--cor-texto);
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: help;
-    margin-top: 9px;
-}
-
-/* ====================================================================
-   PAGINAÇÃO
-   ==================================================================== */
 
 .paginacao {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 16px;
     margin-top: 16px;
-    flex-wrap: wrap;
 }
 
 .paginacao button {
-    padding: 8px 16px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
+    padding: 7px 14px;
     background: var(--cor-card);
     color: var(--cor-texto);
+    border: 1px solid var(--cor-borda-forte);
+    border-radius: 6px;
+    font-size: 0.88rem;
 }
 
 .paginacao button:hover:not(:disabled) {
-    background: var(--cor-borda);
+    background: var(--cor-destaque-suave);
 }
 
-/* Estado desabilitado (paginaAtual === 1 ou === totalPaginas, ver JS) */
+/* Estado desabilitado (primeira/última página, ver JS) */
 .paginacao button:disabled {
     opacity: 0.4;
-    cursor: not-allowed;
 }
 
 .paginacao span {
-    font-size: 0.9rem;
-    color: var(--cor-texto);
+    font-size: 0.88rem;
+    color: var(--cor-texto-suave);
 }
 
-.paginacao select {
-    padding: 8px 12px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 6px;
-    background: var(--cor-fundo);
-    color: var(--cor-texto);
-}
-
-/* Sobrescreve .campo para ficar lado a lado (padrão dos filtros),
-   com uma margem extra separando da paginação */
 .campo-itens-pagina {
     margin-left: 16px;
-    flex-direction: row;
-    align-items: center;
     gap: 8px;
 }
 
-.campo-itens-pagina label {
-    font-size: 0.85rem;
-    color: var(--cor-texto);
+/* ====================================================================
+   10. FORMULÁRIO E MODAL (Novo / Editar lançamento)
+   O único <form> do site vive dentro do modal.
+   ==================================================================== */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-/* ====================================================================
-   MODAL (Novo/Editar Lançamento)
-   ==================================================================== */
+form label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--cor-texto-suave);
+}
+
+/* Cada rótulo ganha respiro acima (menos o primeiro): o espaço entre
+   rótulo e campo fica pequeno e o espaço entre campos fica maior */
+form>label {
+    margin-top: 12px;
+}
+
+form>label:first-child {
+    margin-top: 0;
+}
+
+.campo-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+#grupo-data-fim {
+    margin-top: 12px;
+}
+
+#grupo-data-fim label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#grupo-data-fim input {
+    width: 100%;
+}
 
 .modal-overlay {
     position: fixed;
@@ -622,94 +754,177 @@ form select,
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(10, 20, 30, 0.55);
     z-index: 100;
 }
 
 .modal-conteudo {
-    background: var(--cor-card);
-    border-radius: 8px;
-    padding: 24px;
     width: 90%;
     max-width: 480px;
     max-height: 90vh;
+    max-height: 90dvh;
+    /* altura realmente visível no celular (descontando a barra do navegador) */
     overflow-y: auto;
-}
-
-/* Dentro do modal, o form empilha os campos em coluna (mais adequado
-   a uma janela estreita) e perde a "casca" própria (sombra/padding),
-   já que o .modal-conteudo já fornece isso */
-.modal-conteudo form {
-    flex-direction: column;
-    align-items: stretch;
-    box-shadow: none;
-    padding: 0;
-    margin-bottom: 0;
+    padding: 26px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px var(--cor-sombra);
 }
 
 .modal-cabecalho {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 .modal-cabecalho h2 {
     margin: 0;
-    color: var(--cor-texto);
+    font-size: 1.25rem;
 }
 
 .botao-fechar {
+    padding: 0 4px;
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     line-height: 1;
-    cursor: pointer;
+    color: var(--cor-texto-suave);
+}
+
+.botao-fechar:hover {
     color: var(--cor-texto);
 }
 
 /* ====================================================================
-   RESPONSIVIDADE (celular / tablet)
+   11. RESPONSIVIDADE (celular / tablet)
    ==================================================================== */
 
-.botao-menu-mobile {
-    display: none;
-    /* só aparece dentro da media query abaixo */
-    background: var(--cor-card);
-    border: 1px solid var(--cor-borda);
-    color: var(--cor-texto);
-    font-size: 1.3rem;
-    padding: 8px 14px;
-    border-radius: 6px;
-    margin-bottom: 16px;
-}
-
 @media (max-width: 768px) {
-    .botao-menu-mobile {
-        display: inline-block;
+
+    h1 {
+        font-size: 1.5rem;
     }
 
-    /* Sidebar sai do fluxo normal e fica escondida fora da tela à
-       esquerda; a classe "aberta" (via JS) a traz de volta com uma
-       transição suave */
+    /* Layout vira coluna: menu no topo, conteúdo embaixo */
+    .layout {
+        flex-direction: column;
+    }
+
+    /* A sidebar vira uma barra no topo. sticky = acompanha a rolagem.
+       z-index menor que o do modal (100), senão a barra apareceria por
+       cima do fundo escurecido */
     .sidebar {
-        position: fixed;
+        width: 100%;
+        position: sticky;
         top: 0;
-        left: 0;
-        height: 100%;
-        z-index: 200;
-        transform: translateX(-100%);
-        transition: transform 0.2s ease;
+        z-index: 50;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        gap: 6px;
     }
 
-    .sidebar.aberta {
-        transform: translateX(0);
+    .marca {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .marca-icone {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Navegação numa linha própria (order: 3 = depois da marca e do rodapé) */
+    .nav-lista {
+        order: 3;
+        width: 100%;
+        flex-direction: row;
+        gap: 4px;
+    }
+
+    .nav-lista .nav-item {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px;
+        font-size: 0.85rem;
+    }
+
+    /* Na barra horizontal, o indicador da seção ativa vira um sublinhado */
+    .sidebar button.ativo {
+        box-shadow: inset 0 -3px 0 var(--cor-acento-sidebar);
+    }
+
+    .sidebar-rodape {
+        margin-top: 0;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .usuario-logado {
+        display: none;
+        /* sem espaço na barra; continua visível no desktop */
     }
 
     .conteudo {
-        padding: 20px;
+        padding: 16px;
+    }
+
+    /* Filtros: um campo por linha, quebrando para baixo */
+    .barra-filtros {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .barra-filtros .campo {
+        width: 100%;
+    }
+
+    .barra-filtros .campo label {
+        flex: 0 0 110px;
+        /* largura fixa nos rótulos alinha os campos */
+    }
+
+    .barra-filtros .campo input,
+    .barra-filtros .campo select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .barra-filtros .botao-secundario {
+        width: 100%;
+    }
+
+    .campo-itens-pagina {
+        margin-left: 0;
+    }
+
+    /* Cada linha da tabela numa linha só; quem rola é o .tabela-scroll */
+    .tabela-scroll th,
+    .tabela-scroll td {
+        white-space: nowrap;
+    }
+
+    /* Com 16px o iPhone não dá zoom automático ao tocar num campo */
+    input,
+    select {
+        font-size: 16px;
+    }
+}
+
+/* Respeita quem pede menos animação no sistema operacional */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
     }
 }
