@@ -525,10 +525,15 @@ function renderizar() {
         celulaCategoria.textContent = item.categoria;
 
         const celulaTipo = document.createElement("td");
-        celulaTipo.textContent = item.tipo;
+        const seloTipo = document.createElement("span");
+        seloTipo.className = "badge " + (item.tipo === "Entrada" ? "badge-positivo" : "badge-negativo");
+        seloTipo.textContent = item.tipo;
+        celulaTipo.appendChild(seloTipo);
 
         const celulaValor = document.createElement("td");
+        celulaValor.className = "num " + (item.tipo === "Entrada" ? "valor-positivo" : "valor-negativo");
         celulaValor.textContent = formatarMoeda(item.valor);
+
         const celulaForma = document.createElement("td");
         celulaForma.textContent = item.forma;
 
@@ -636,6 +641,10 @@ function renderizarResumo() {
     document.getElementById("metrica-saldo-mes").textContent =
         formatarMoeda(saldoMesAtual);
 
+    const cardSaldo = document.getElementById("metrica-saldo-mes");
+    cardSaldo.classList.toggle("valor-positivo", saldoMesAtual > 0);
+    cardSaldo.classList.toggle("valor-negativo", saldoMesAtual < 0);
+
     chaves.forEach(function (chave) {
         const item = resumo[chave];
         const saldo = item.entradas - item.saidas;
@@ -644,11 +653,13 @@ function renderizarResumo() {
         const textoSituacao = saldo > 0 ? "Positivo" : saldo < 0 ? "Negativo" : "Neutro";
 
         const linha = document.createElement("tr");
+        const classeSaldo = saldo > 0 ? "valor-positivo" : saldo < 0 ? "valor-negativo" : "";
+
         linha.innerHTML =
             "<td>" + meses[item.mes] + "/" + item.ano + "</td>" +
-            "<td>" + formatarMoeda(item.entradas) + "</td>" +
-            "<td>" + formatarMoeda(item.saidas) + "</td>" +
-            "<td>" + formatarMoeda(saldo) + "</td>" +
+            "<td class='num'>" + formatarMoeda(item.entradas) + "</td>" +
+            "<td class='num'>" + formatarMoeda(item.saidas) + "</td>" +
+            "<td class='num " + classeSaldo + "'>" + formatarMoeda(saldo) + "</td>" +
             "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
@@ -691,11 +702,13 @@ function renderizarResumoAnual() {
         const textoSituacao = saldo > 0 ? "Positivo" : saldo < 0 ? "Negativo" : "Neutro";
 
         const linha = document.createElement("tr");
+        const classeSaldo = saldo > 0 ? "valor-positivo" : saldo < 0 ? "valor-negativo" : "";
+
         linha.innerHTML =
             "<td>" + ano + "</td>" +
-            "<td>" + formatarMoeda(item.entradas) + "</td>" +
-            "<td>" + formatarMoeda(item.saidas) + "</td>" +
-            "<td>" + formatarMoeda(saldo) + "</td>" +
+            "<td class='num'>" + formatarMoeda(item.entradas) + "</td>" +
+            "<td class='num'>" + formatarMoeda(item.saidas) + "</td>" +
+            "<td class='num " + classeSaldo + "'>" + formatarMoeda(saldo) + "</td>" +
             "<td><span class='badge " + classeSituacao + "'>" + textoSituacao + "</span></td>";
         corpo.appendChild(linha);
     });
