@@ -63,6 +63,11 @@ const textoTotalLancamentos = document.getElementById("texto-total-lancamentos")
 const textoSelecionados = document.getElementById("texto-selecionados");
 const botaoExcluirSelecionados = document.getElementById("botao-excluir-selecionados");
 
+//Totalizar na tela de lançamentos
+const textoTotalEntradas = document.getElementById("total-entradas");
+const textoTotalSaidas = document.getElementById("total-saidas");
+const textoTotalSaldo = document.getElementById("total-saldo");
+
 // Set: guarda os IDs dos lançamentos marcados. Fonte única de verdade
 // sobre "o que está selecionado" — sobrevive a re-renderizações e trocas
 // de página (diferente de guardar o estado no próprio checkbox do DOM)
@@ -575,6 +580,28 @@ function renderizar() {
     idsPaginaAtual = lancamentosDaPagina.map(function (item) { return item.id; });
     textoTotalLancamentos.textContent = "Total: " + lancamentosFiltrados.length + " lançamento(s)";
 
+    // Totalizador: soma TODOS os itens filtrados (não só os da página atual)
+    let totalEntradas = 0;
+    let totalSaidas = 0;
+
+    lancamentosFiltrados.forEach(function (item) {
+        if (item.tipo === "Entrada") {
+            totalEntradas += item.valor;
+        } else {
+            totalSaidas += item.valor;
+        }
+    });
+
+    // Arredonda para centavos: somas com decimais podem gerar sobras mínimas
+    // (ex: 0.1 + 0.2 = 0.30000000000000004) e um saldo "quase zero" ficaria colorido
+    const saldoFiltrado = Math.round((totalEntradas - totalSaidas) * 100) / 100;
+
+    textoTotalEntradas.textContent = formatarMoeda(totalEntradas);
+    textoTotalSaidas.textContent = formatarMoeda(totalSaidas);
+    textoTotalSaldo.textContent = formatarMoeda(saldoFiltrado);
+    textoTotalSaldo.classList.toggle("valor-positivo", saldoFiltrado > 0);
+    textoTotalSaldo.classList.toggle("valor-negativo", saldoFiltrado < 0);
+
 }
 
 /* ====================================================================
@@ -735,7 +762,10 @@ function preencherSeletorMeses() {
     if (!chaves.includes(chaveMesAtual)) {
         chaves.push(chaveMesAtual);
     }
-    chaves.sort();
+
+    chaves.sort(function (a, b) {
+        return b.localeCompare(a); // mais recente primeiro
+    });
 
     const chaveSelecionada = seletor.value; // escolha atual do usuário, se houver
     seletor.innerHTML = "";

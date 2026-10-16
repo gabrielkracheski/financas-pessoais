@@ -390,10 +390,6 @@ input[type="checkbox"] {
     padding: 36px 40px;
 }
 
-/* Limita a largura de leitura em telas grandes */
-.secao {
-    max-width: 1120px;
-}
 
 /* ====================================================================
    7. PAINÉIS: FAIXA DE MÉTRICAS E CARD DO GRÁFICO
@@ -639,6 +635,34 @@ td.num {
 
 #lista-lancamentos button:last-child:hover {
     background: var(--cor-negativo-suave);
+}
+
+/* Linha de totais abaixo da tabela, alinhada à direita como num extrato */
+.totalizador {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 32px;
+    margin-bottom: 12px;
+    padding: 14px 18px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+}
+
+.totalizador-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.totalizador-rotulo {
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+}
+
+.totalizador-valor {
+    font-weight: 600;
 }
 
 .rodape-tabela {

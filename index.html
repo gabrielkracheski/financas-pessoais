@@ -268,6 +268,22 @@
                         </table>
                     </div>
 
+                    <!-- Totalizador: soma dos itens filtrados (atualizado por renderizar() no script.js) -->
+                    <div class="totalizador">
+                        <div class="totalizador-item">
+                            <span class="totalizador-rotulo">Entradas</span>
+                            <span class="totalizador-valor valor-positivo" id="total-entradas">R$ 0,00</span>
+                        </div>
+                        <div class="totalizador-item">
+                            <span class="totalizador-rotulo">Saídas</span>
+                            <span class="totalizador-valor valor-negativo" id="total-saidas">R$ 0,00</span>
+                        </div>
+                        <div class="totalizador-item">
+                            <span class="totalizador-rotulo">Saldo</span>
+                            <span class="totalizador-valor" id="total-saldo">R$ 0,00</span>
+                        </div>
+                    </div>
+
                     <!-- Contador de total + ações sobre os itens selecionados -->
                     <div class="rodape-tabela">
                         <span id="texto-total-lancamentos"></span>
